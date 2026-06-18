@@ -1,5 +1,3 @@
 window.GREEN_PASSPORT_CONFIG = {
-  // ใส่ Google Apps Script Web App URL หลัง deploy Code.gs
-  // ตัวอย่าง: 'https://script.google.com/macros/s/AKfycb.../exec'
-  sheetApiUrl: '',
+  sheetApiUrl: 'https://script.google.com/macros/s/AKfycbxnV_a0Yu9xk6ImCbvkrZuSXVn3xKDoYVRiXYi43QHFxf0Wk0JnP-SB-Q_8B244bF4a1A/exec',
 };
