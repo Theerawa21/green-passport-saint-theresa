@@ -2978,9 +2978,55 @@
     function renderAdmin() {
       const loggedIn = !!state.adminPIN;
       document.getElementById('admin').innerHTML = `
-        ${loggedIn ? adminPanelHtml() : `<div class="panel" style="max-width:520px"><h3>เข้าสู่ระบบ Admin</h3><label>Admin PIN<input id="pinInput" type="password" autocomplete="current-password"></label><button class="btn" style="margin-top:14px" onclick="adminLogin()">${icons.lock}เข้าสู่ระบบ</button><p class="notice" style="margin-top:12px">เพื่อความปลอดภัย รหัส Admin ควรตั้งค่าใน Script Properties และไม่แสดงในหน้าเว็บสาธารณะ</p></div>`}
+        ${loggedIn ? adminPanelHtml() : `<div class="grid two">${sheetConnectionPanelHtml()}<div class="panel" style="max-width:520px"><h3>เข้าสู่ระบบ Admin</h3><label>Admin PIN<input id="pinInput" type="password" autocomplete="current-password"></label><button class="btn" style="margin-top:14px" onclick="adminLogin()">${icons.lock}เข้าสู่ระบบ</button><p class="notice" style="margin-top:12px">ตั้งค่า Google Apps Script Web App URL ทางซ้ายก่อน เพื่อให้ระบบตรวจ PIN และบันทึกข้อมูลลงชีตได้</p></div></div>`}
       `;
       if (loggedIn) attachAdminFilters();
+    }
+
+    function sheetConnectionPanelHtml() {
+      return `<div class="panel">
+        <h3>เชื่อม Google Sheets</h3>
+        <p class="notice">ฐานข้อมูล: <a href="${SHEET_URL}" target="_blank" rel="noopener">Google Sheet Green Passport</a></p>
+        <label>Google Apps Script Web App URL
+          <input id="sheetApiInput" type="url" value="${escapeAttr(sheetApiUrl)}" placeholder="https://script.google.com/macros/s/.../exec">
+        </label>
+        <div class="btn-row" style="margin-top:12px">
+          <button class="btn" onclick="saveSheetApiUrl()">บันทึกการเชื่อมต่อ</button>
+          <button class="btn ghost" onclick="testSheetConnection()">ทดสอบ</button>
+        </div>
+        <p class="notice" style="margin-top:12px">${sheetApiConfigured() ? 'สถานะ: ตั้งค่า endpoint แล้ว' : 'สถานะ: ยังไม่ได้ตั้งค่า endpoint สำหรับเขียนข้อมูลลงชีต'}</p>
+      </div>`;
+    }
+
+    function saveSheetApiUrl() {
+      const input = document.getElementById('sheetApiInput');
+      const value = String(input?.value || '').trim();
+      if (!value) {
+        localStorage.removeItem(SHEET_API_STORAGE_KEY);
+        sheetApiUrl = '';
+        alert('ล้างค่า endpoint แล้ว');
+        renderAdmin();
+        return;
+      }
+      if (!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec/.test(value)) {
+        alert('URL ต้องเป็น Google Apps Script Web App URL ที่ลงท้ายด้วย /exec');
+        return;
+      }
+      sheetApiUrl = value;
+      localStorage.setItem(SHEET_API_STORAGE_KEY, sheetApiUrl);
+      alert('บันทึก endpoint แล้ว ระบบจะใช้ URL นี้เพื่ออ่าน/เขียนข้อมูลลง Google Sheets');
+      renderAdmin();
+    }
+
+    async function testSheetConnection() {
+      saveSheetApiUrl();
+      if (!sheetApiConfigured()) return;
+      try {
+        await reloadData(true);
+        alert('เชื่อมต่อ Google Sheets สำเร็จ');
+      } catch (error) {
+        alert('ยังเชื่อมต่อไม่สำเร็จ: ' + error.message);
+      }
     }
 
     function adminLogin() {
@@ -2999,6 +3045,7 @@
 
     function adminPanelHtml() {
       return `<div class="grid">
+        ${sheetConnectionPanelHtml()}
         <div class="panel">
           <h3>Admin Dashboard</h3>
           <div class="privacy-box" style="margin-bottom:12px">เพื่อความปลอดภัย ไม่ควรแสดงรหัส Admin ในหน้าเว็บจริง ควรตั้งผ่าน Script Properties จำกัดสิทธิ์ครูผู้ดูแล และซ่อนข้อมูลส่วนบุคคลในรายงานสาธารณะ</div>

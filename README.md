@@ -35,6 +35,8 @@ Google Sheets ที่ผูกกับระบบ: https://docs.google.com/s
 
 เมื่อเปิดด้วย `?api=...` ระบบจะจำ endpoint ไว้ใน browser และการส่งข้อมูลขยะ คะแนนเกม และผลตรวจ Admin จะบันทึกลง Google Sheets ทั้งหมด
 
+บนเว็บ GitHub Pages สามารถตั้งค่าได้จากหน้า `Admin` เช่นกัน: วาง Web App URL ในแผง `เชื่อม Google Sheets` แล้วกด `บันทึกการเชื่อมต่อ` และ `ทดสอบ`
+
 ## วิธี deploy เป็นเว็บด้วย GitHub Pages
 
 มี workflow สำหรับ GitHub Pages อยู่แล้วที่ `.github/workflows/deploy-pages.yml`
@@ -59,6 +61,8 @@ window.GREEN_PASSPORT_CONFIG = {
 `https://USERNAME.github.io/green-passport-saint-theresa/?api=WEB_APP_URL`
 
 หลังจากนั้น browser จะจำ endpoint ไว้ใน localStorage
+
+หรือเปิดหน้า `Admin` บนเว็บแล้วตั้งค่าในแผง `เชื่อม Google Sheets` ได้โดยไม่ต้องแก้ไฟล์ใน repo
 
 ## การอ่านข้อมูล
 
