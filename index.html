@@ -1972,6 +1972,106 @@
 
   <script src="./site.config.js"></script>
   <script>
+    // Global Error Console storage and interceptor
+    (function() {
+      const ERROR_LOGS_KEY = 'greenPassportErrorLogs';
+      window.errorLogs = [];
+      try {
+        const raw = localStorage.getItem(ERROR_LOGS_KEY);
+        if (raw) window.errorLogs = JSON.parse(raw);
+      } catch(e) {}
+
+      function logError(type, message, details = '') {
+        const err = {
+          time: new Date().toLocaleTimeString('th-TH') + ' ' + new Date().toLocaleDateString('th-TH'),
+          type: type,
+          message: message,
+          details: details
+        };
+        window.errorLogs.unshift(err); // add to beginning
+        if (window.errorLogs.length > 100) {
+          window.errorLogs.pop(); // keep last 100
+        }
+        try {
+          localStorage.setItem(ERROR_LOGS_KEY, JSON.stringify(window.errorLogs));
+        } catch(e) {}
+        
+        // Safely try to update the console DOM if it is currently visible,
+        // without calling full renderAdmin() which might trigger other errors.
+        try {
+          const consoleLogsContainer = document.getElementById('adminConsoleLogs');
+          if (consoleLogsContainer) {
+            function localEscapeHtml(str) {
+              if (!str) return '';
+              return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+            }
+            let logsHtml = window.errorLogs.map((log) => {
+              let color = '#ff5f56'; 
+              if (log.type === 'Promise Rejection') color = '#ffbd2e'; 
+              if (log.type === 'Console Error') color = '#f77f00'; 
+              return `<div style="margin-bottom:10px; border-bottom:1px solid #2d2d2d; padding-bottom:6px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:11px;">
+                  <span style="color:${color}; font-weight:bold;">[${localEscapeHtml(log.type)}]</span>
+                  <span style="color:#888;">${localEscapeHtml(log.time)}</span>
+                </div>
+                <div style="word-break:break-all; white-space:pre-wrap; color:#f8f8f2;">${localEscapeHtml(log.message)}</div>
+                ${log.details ? `<div style="color:#888; font-size:11px; margin-top:2px; word-break:break-all; white-space:pre-wrap;">รายละเอียด: ${localEscapeHtml(log.details)}</div>` : ''}
+              </div>`;
+            }).join('');
+            if (window.errorLogs.length === 0) {
+              logsHtml = '<div style="color:#888; text-align:center; padding:20px 0;">ไม่มี Error ที่บันทึกไว้</div>';
+            }
+            consoleLogsContainer.innerHTML = logsHtml;
+            const countEl = document.querySelector('#adminConsoleTitleCount');
+            if (countEl) countEl.textContent = `(${window.errorLogs.length})`;
+          }
+        } catch (e) {
+          // Prevent infinite loops
+        }
+      }
+
+      window.addManualErrorLog = function(type, message, details) {
+        logError(type, message, details);
+      };
+
+      // Capture runtime errors
+      window.addEventListener('error', function(event) {
+        const details = event.filename ? `${event.filename}:${event.lineno}:${event.colno}` : '';
+        logError('Runtime Error', event.message || String(event.error), details);
+      });
+
+      // Capture unhandled promise rejections
+      window.addEventListener('unhandledrejection', function(event) {
+        const reason = event.reason;
+        const msg = reason ? (reason.message || String(reason)) : 'Promise Rejection';
+        const stack = (reason && reason.stack) ? reason.stack.split('\n').slice(0, 3).join('\n') : '';
+        logError('Promise Rejection', msg, stack);
+      });
+
+      // Intercept console.error
+      const originalConsoleError = console.error;
+      console.error = function(...args) {
+        try {
+          originalConsoleError.apply(console, args);
+          const msg = args.map(arg => {
+            try {
+              return typeof arg === 'object' ? JSON.stringify(arg) : String(arg);
+            } catch (err) {
+              return String(arg);
+            }
+          }).join(' ');
+          logError('Console Error', msg);
+        } catch (e) {
+          originalConsoleError.apply(console, args);
+        }
+      };
+    })();
+
     const SHEET_ID = '1G0rL3YSQexyiMp7vPu8DdOo2tUZk9xIhi1E1poaJqi4';
     const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/edit`;
     const SHEET_API_STORAGE_KEY = 'greenPassportSheetApiUrl';
@@ -2034,6 +2134,7 @@
       kit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16v13H4z"/><path d="M8 7V5h8v2"/><path d="M8 13h8"/><path d="M12 9v8"/></svg>',
       award: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="5"/><path d="M8.5 12.5 7 22l5-3 5 3-1.5-9.5"/></svg>',
       lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>',
+      code: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg>',
     };
 
     const activityFields = [
@@ -5486,7 +5587,7 @@
     function renderAdmin() {
       const loggedIn = !!state.adminPIN;
       document.getElementById('admin').innerHTML = `
-        ${loggedIn ? adminPanelHtml() : `<div class="grid two">${sheetConnectionPanelHtml()}<div class="panel" style="max-width:520px"><h3>เข้าสู่ระบบ Admin</h3><label>Admin PIN<input id="pinInput" type="password" autocomplete="current-password"></label><button class="btn" style="margin-top:14px" onclick="adminLogin()">${icons.lock}เข้าสู่ระบบ</button><p class="notice" style="margin-top:12px">ตั้งค่า Google Apps Script Web App URL ทางซ้ายก่อน เพื่อให้ระบบตรวจ PIN และบันทึกข้อมูลลงชีตได้</p></div></div>`}
+        ${loggedIn ? adminPanelHtml() : `<div style="display:flex; justify-content:center; align-items:center; min-height:300px; width:100%;"><div class="panel" style="width:100%; max-width:480px;"><h3>เข้าสู่ระบบ Admin</h3><label>Admin PIN<input id="pinInput" type="password" autocomplete="current-password"></label><button class="btn" style="margin-top:14px" onclick="adminLogin()">${icons.lock}เข้าสู่ระบบ</button><p class="notice" style="margin-top:12px">เฉพาะคณะครูและผู้ดูแลระบบเท่านั้น หากใช้งานครั้งแรกหรือล้างข้อมูลการเชื่อมต่อ สามารถใส่ PIN เริ่มต้น (2468) เพื่อเข้าไปตั้งค่า Google Sheets ได้</p></div></div>`}
       `;
       if (loggedIn) attachAdminFilters();
     }
@@ -5600,7 +5701,83 @@
         </div>
         <div class="panel"><h3>ตรวจสอบหลักฐานโดยครู</h3><div id="adminTable"></div></div>
         <div class="panel"><h3>ผลการเล่นเกม Trash Hero Academy</h3>${adminGameScoresHtml()}</div>
+        ${adminErrorConsoleHtml()}
       </div>`;
+    }
+
+    function adminErrorConsoleHtml() {
+      const logs = window.errorLogs || [];
+      return `<div class="panel" style="grid-column: 1 / -1;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+          <h3 style="margin:0; display:flex; align-items:center; gap:8px;">
+            ${icons.code} คอนโซลแสดง Error ของเว็บ <span id="adminConsoleTitleCount">(${logs.length})</span>
+          </h3>
+          <div class="btn-row">
+            <button class="btn ghost small" onclick="testErrorCapture()">ทดสอบสร้าง Error</button>
+            <button class="btn ghost small" onclick="copyErrorLogs()">คัดลอกทั้งหมด</button>
+            <button class="btn secondary small" onclick="clearErrorLogs()">เคลียร์ประวัติ</button>
+          </div>
+        </div>
+        <p class="notice" style="margin-bottom:12px;">แสดงข้อผิดพลาดที่เกิดขึ้นบนหน้าเว็บ (เช่น จาก Firebase, Google Sheets, หรือ Script error) ช่วยตรวจความปลอดภัยและสถานะระบบ</p>
+        <div id="adminConsoleLogs" style="background:#1e1e1e; color:#d4d4d4; font-family:'Courier New', Courier, monospace; font-size:13px; padding:12px; border-radius:8px; max-height:300px; overflow-y:auto; border:1px solid #333; line-height:1.4;">
+          ${logs.length === 0 ? '<div style="color:#888; text-align:center; padding:20px 0;">ไม่มี Error ที่บันทึกไว้</div>' : logs.map((log) => {
+            let color = '#ff5f56'; 
+            if (log.type === 'Promise Rejection') color = '#ffbd2e'; 
+            if (log.type === 'Console Error') color = '#f77f00'; 
+            function localEscapeHtml(str) {
+              if (!str) return '';
+              return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+            }
+            return `<div style="margin-bottom:10px; border-bottom:1px solid #2d2d2d; padding-bottom:6px;">
+              <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:11px;">
+                <span style="color:${color}; font-weight:bold;">[${localEscapeHtml(log.type)}]</span>
+                <span style="color:#888;">${localEscapeHtml(log.time)}</span>
+              </div>
+              <div style="word-break:break-all; white-space:pre-wrap; color:#f8f8f2;">${localEscapeHtml(log.message)}</div>
+              ${log.details ? `<div style="color:#888; font-size:11px; margin-top:2px; word-break:break-all; white-space:pre-wrap;">รายละเอียด: ${localEscapeHtml(log.details)}</div>` : ''}
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+    }
+
+    function testErrorCapture() {
+      console.error('ทดสอบ Console.error: เกิดข้อผิดพลาดจำลองจากการกดปุ่ม');
+      setTimeout(() => {
+        throw new Error('ทดสอบ Runtime Error: เกิดข้อผิดพลาดจำลองของระบบ');
+      }, 50);
+      setTimeout(() => {
+        Promise.reject(new Error('ทดสอบ Promise Rejection: การทำงานไม่สำเร็จ'));
+      }, 100);
+    }
+
+    function copyErrorLogs() {
+      const logs = window.errorLogs || [];
+      if (logs.length === 0) {
+        alert('ไม่มี log ให้คัดลอก');
+        return;
+      }
+      const text = logs.map(log => `[${log.type}] [${log.time}]\nMessage: ${log.message}\nDetails: ${log.details || 'None'}\n---`).join('\n');
+      navigator.clipboard.writeText(text).then(() => {
+        alert('คัดลอก Error logs ทั้งหมดลง Clipboard แล้ว');
+      }).catch(err => {
+        alert('ไม่สามารถคัดลอกได้: ' + err);
+      });
+    }
+
+    function clearErrorLogs() {
+      if (confirm('คุณต้องการลบ Error logs ทั้งหมดใช่หรือไม่?')) {
+        window.errorLogs = [];
+        try {
+          localStorage.removeItem('greenPassportErrorLogs');
+        } catch(e) {}
+        renderAdmin();
+      }
     }
 
     function adminToolsPanelHtml() {
