@@ -117,7 +117,7 @@
     function record(house, student, room, id, month, general, recycle, organic, co2e, status) {
       return {
         _rowNumber: Math.floor(Math.random() * 100) + 2,
-        HouseholdName: house, StudentName: student, ClassName: room, StudentID: id, ReportMonth: month,
+        UserID: id, HouseholdName: house, StudentName: student, ClassName: room, StudentID: id, ReportMonth: month,
         GeneralWasteKg: general, RecycleWasteKg: recycle, OrganicWasteKg: organic, HazardousWasteAmount: 1,
         PaperKg: recycle * .25, PlasticBottleKg: recycle * .18, CanKg: recycle * .12, AluminumKg: .3, SteelCanKg: .2,
         ScrapIronKg: .2, GlassBottleKg: recycle * .18, CompostFoodKg: organic * .45, BioExtractKg: organic * .1, FeedAnimalsKg: organic * .15,
@@ -140,8 +140,10 @@
         const managed = rows.reduce((t, r) => t + sumOne(r, ['PaperKg','PlasticBottleKg','CanKg','AluminumKg','SteelCanKg','ScrapIronKg','GlassBottleKg','CompostFoodKg','BioExtractKg','FeedAnimalsKg']), 0);
         return {
           HouseholdName: house,
+          UserID: last.UserID || '',
           StudentName: last.StudentName,
           ClassName: last.ClassName,
+          StudentID: last.StudentID || '',
           TotalSubmissions: rows.length,
           TotalWasteKg: round(totalWaste),
           TotalManagedWasteKg: round(managed),
@@ -187,10 +189,10 @@
       return String(value || '').split(',').map((x) => x.trim()).filter(Boolean);
     }
 
-    function buildProfilesFromData(households = [], scores = [], posts = [], comments = [], expLogs = []) {
+    function buildProfilesFromData(households = [], scores = [], posts = [], comments = [], expLogs = [], records = []) {
       const profiles = {};
       function ensureProfile(key, base = {}) {
-        const id = key || base.StudentID || base.UserID || base.DisplayName || base.StudentName || base.FullName || 'guest';
+        const id = key || base.UserID || base.StudentID || base.DisplayName || base.StudentName || base.FullName || 'guest';
         profiles[id] ||= {
           UserID: id,
           DisplayName: safeDisplayName(base.DisplayName || base.StudentName || base.FullName || id),
@@ -214,13 +216,29 @@
         Object.assign(profiles[id], Object.fromEntries(Object.entries(base).filter(([, value]) => value !== '' && value !== undefined)));
         return profiles[id];
       }
-      households.forEach((h) => {
-        const profile = ensureProfile(h.StudentName || h.HouseholdName, h);
-        profile.TotalSubmissions = Math.max(Number(profile.TotalSubmissions || 0), Number(h.TotalSubmissions || 0));
-        profile.TotalCO2e = Math.max(Number(profile.TotalCO2e || 0), Number(h.TotalCO2e || 0));
-        profile.HouseholdStatus = h.ZeroWasteHomeStatus || profile.HouseholdStatus;
-        profile.CurrentEXP += Number(h.TotalSubmissions || 0) * 20 + Math.round(Number(h.TotalCO2e || 0));
-      });
+      if (records.length) {
+        records.forEach((r) => {
+          const profile = ensureProfile(r.UserID || r.StudentID || r.StudentName || r.HouseholdName, {
+            UserID: r.UserID || '',
+            DisplayName: r.DisplayName || '',
+            StudentName: r.StudentName || '',
+            ClassName: r.ClassName || '',
+            StudentID: r.StudentID || '',
+          });
+          profile.TotalSubmissions = Number(profile.TotalSubmissions || 0) + 1;
+          profile.TotalCO2e = round(Number(profile.TotalCO2e || 0) + Number(r.TotalCO2e || 0));
+          profile.HouseholdStatus = profile.HouseholdStatus || r.HouseholdName || '';
+          profile.CurrentEXP += 20 + Math.round(Number(r.TotalCO2e || 0));
+        });
+      } else {
+        households.forEach((h) => {
+          const profile = ensureProfile(h.UserID || h.StudentID || h.StudentName || h.HouseholdName, h);
+          profile.TotalSubmissions = Math.max(Number(profile.TotalSubmissions || 0), Number(h.TotalSubmissions || 0));
+          profile.TotalCO2e = Math.max(Number(profile.TotalCO2e || 0), Number(h.TotalCO2e || 0));
+          profile.HouseholdStatus = h.ZeroWasteHomeStatus || profile.HouseholdStatus;
+          profile.CurrentEXP += Number(h.TotalSubmissions || 0) * 20 + Math.round(Number(h.TotalCO2e || 0));
+        });
+      }
       scores.forEach((s) => {
         const profile = ensureProfile(s.StudentID || s.FullName, s);
         const badgeCount = String(s.Badges || '').split(',').filter(Boolean).length;
@@ -249,18 +267,56 @@
       }).sort((a, b) => Number(b.CurrentEXP || 0) - Number(a.CurrentEXP || 0));
     }
 
+    function currentUserProfileAliases() {
+      const user = normalizeAuthUser(state.currentUser || {});
+      const fullName = `${user.FirstName || ''} ${user.LastName || ''}`.trim();
+      return new Set([
+        user.UserID,
+        user.StudentID,
+        user.StudentIDMasked,
+        user.DisplayName,
+        safeDisplayName(user.DisplayName),
+        fullName,
+        safeDisplayName(fullName),
+      ].map((value) => String(value || '').trim()).filter(Boolean));
+    }
+
+    function profileCanonicalId(profile) {
+      const id = String(profile.UserID || profile.DisplayName || '').trim();
+      const currentId = String(state.currentUser?.UserID || '').trim();
+      if (!currentId || id === currentId) return id;
+      const aliases = currentUserProfileAliases();
+      const candidates = [
+        profile.UserID,
+        profile.StudentID,
+        profile.StudentIDMasked,
+        profile.DisplayName,
+        profile.StudentName,
+        profile.FullName,
+      ].map((value) => String(value || '').trim()).filter(Boolean);
+      return candidates.some((value) => aliases.has(value)) ? currentId : id;
+    }
+
+    function mergeProfiles(base = {}, next = {}) {
+      const merged = { ...base, ...next };
+      ['CurrentEXP','TotalScore','TotalStars','TotalBadges','TotalPosts','TotalComments','TotalSubmissions','TotalCO2e'].forEach((field) => {
+        merged[field] = Math.max(Number(base[field] || 0), Number(next[field] || 0));
+      });
+      return merged;
+    }
+
     function allProfiles() {
-      const generated = buildProfilesFromData(state.data.householdSummary || [], state.data.gameScores || [], state.data.communityPosts || [], state.data.postComments || [], state.data.expLogs || []);
+      const generated = buildProfilesFromData(state.data.householdSummary || [], state.data.gameScores || [], state.data.communityPosts || [], state.data.postComments || [], state.data.expLogs || [], state.data.wasteRecords || []);
       const stored = (state.data.userProfiles || []).filter((p) => p.UserID || p.DisplayName);
       const merged = {};
       [...generated, ...stored].forEach((profile) => {
-        const id = profile.UserID || profile.DisplayName;
-        merged[id] = { ...(merged[id] || {}), ...profile };
+        const id = profileCanonicalId(profile);
+        merged[id] = mergeProfiles(merged[id], { ...profile, UserID: id || profile.UserID || profile.DisplayName });
       });
       return Object.values(merged).map((profile) => {
         const exp = Number(profile.CurrentEXP || 0);
         const level = levelInfoByEXP(exp);
-        return { ...profile, CurrentEXP: exp, CurrentLevel: profile.CurrentLevel || `${level.emoji} ${level.name}`, LevelName: profile.LevelName || level.name, LevelEmoji: profile.LevelEmoji || level.emoji, LevelColor: profile.LevelColor || level.color };
+        return { ...profile, CurrentEXP: exp, CurrentLevel: `${level.emoji} ${level.name}`, LevelName: level.name, LevelEmoji: level.emoji, LevelColor: level.color };
       }).sort((a, b) => Number(b.CurrentEXP || 0) - Number(a.CurrentEXP || 0));
     }
 

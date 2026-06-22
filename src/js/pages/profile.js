@@ -5,7 +5,9 @@
         return;
       }
       if (!profiles.some((profile) => (profile.UserID || profile.DisplayName) === state.profileUserID)) {
-        state.profileUserID = profiles[0].UserID || profiles[0].DisplayName;
+        const currentId = currentUserIdentity().UserID;
+        const currentProfile = profiles.find((profile) => (profile.UserID || profile.DisplayName) === currentId);
+        state.profileUserID = currentProfile ? currentId : profiles[0].UserID || profiles[0].DisplayName;
       }
       const profile = profiles.find((item) => (item.UserID || item.DisplayName) === state.profileUserID) || profiles[0];
       const current = levelInfoByEXP(profile.CurrentEXP);

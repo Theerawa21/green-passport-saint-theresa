@@ -231,6 +231,7 @@
     function authRecordDefaults() {
       const user = currentUserIdentity();
       return {
+        UserID: user.UserID,
         StudentName: `${state.currentUser?.FirstName || ''} ${state.currentUser?.LastName || ''}`.trim() || user.DisplayName,
         ClassName: user.ClassName,
         StudentID: user.StudentID,

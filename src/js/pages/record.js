@@ -77,6 +77,8 @@
       event.preventDefault();
       const form = event.currentTarget;
       const data = Object.fromEntries(new FormData(form).entries());
+      const identity = currentUserIdentity();
+      data.UserID = identity.UserID;
       data.TotalCO2e = calculateCo2e(data);
       data.EvidenceFiles = await filesToPayload(document.getElementById('EvidenceFiles').files);
       if (!data.EvidenceFiles.length) {
@@ -87,6 +89,7 @@
         const result = await sheetApi('appendWasteRecord', { record: data });
         if (result.record) state.data.wasteRecords.push(normalizeRow(result.record));
         refreshLocalDashboard();
+        applyCurrentUserToState();
         saveToLocalStorage();
         alert(`บันทึกลง Google Sheets สำเร็จ\nลดคาร์บอน ${format(result.totalCO2e || data.TotalCO2e)} kgCO₂e\n${result.message || advice(data, data.TotalCO2e)}`);
         form.reset();

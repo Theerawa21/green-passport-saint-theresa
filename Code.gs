@@ -12,7 +12,7 @@ const WASTE_HEADERS = [
   'GeneralWasteKg','RecycleWasteKg','OrganicWasteKg','HazardousWasteAmount',
   ...ACTIVITY_FIELDS,
   'TotalCO2e','EvidenceFileNames','EvidenceFolderLink','VideoLink','ConsentStatus',
-  'ReviewStatus','TeacherComment','ReviewedBy','ReviewedAt',
+  'ReviewStatus','TeacherComment','ReviewedBy','ReviewedAt','UserID',
 ];
 
 const GAME_HEADERS = [
@@ -237,6 +237,7 @@ function avatarText_(name) {
 
 function appendWasteRecord_(input) {
   const record = Object.assign({}, input);
+  record.UserID = String(record.UserID || '').trim();
   const recordId = 'WR-' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyyMMdd-HHmmss') + '-' + Math.floor(Math.random() * 10000);
   const evidence = saveEvidenceFiles_(record.EvidenceFiles || [], recordId);
   record.RecordID = recordId;
@@ -251,7 +252,7 @@ function appendWasteRecord_(input) {
   const rowNumber = appendObject_('WasteRecords', WASTE_HEADERS, record);
   record._rowNumber = rowNumber;
   appendConsentRecord_(record);
-  appendEXPLog_(record.StudentID || record.StudentName || record.HouseholdName, 'บันทึกข้อมูลขยะ', 'บันทึกข้อมูลขยะรายเดือน', 20, record.RecordID, 'ได้รับ EXP จากการบันทึกข้อมูล');
+  appendEXPLog_(record.UserID || record.StudentID || record.StudentName || record.HouseholdName, 'บันทึกข้อมูลขยะ', 'บันทึกข้อมูลขยะรายเดือน', 20, record.RecordID, 'ได้รับ EXP จากการบันทึกข้อมูล');
   refreshImpactSummary_();
   return { ok: true, record, totalCO2e: record.TotalCO2e, message: 'บันทึกข้อมูลลงชีต WasteRecords แล้ว' };
 }
@@ -283,7 +284,7 @@ function updateReview_(req) {
   setCellByHeader_(sheet, headers, row, 'ReviewedBy', reviewedBy);
   setCellByHeader_(sheet, headers, row, 'ReviewedAt', reviewedAt);
   if (status === 'ผ่านการตรวจสอบ') {
-    appendEXPLog_(getValueByHeader_(headers, rowValues, 'StudentID') || getValueByHeader_(headers, rowValues, 'StudentName'), 'ข้อมูลผ่านการตรวจสอบ', 'ข้อมูลขยะผ่านการตรวจสอบโดยครู', 20, getValueByHeader_(headers, rowValues, 'RecordID'), 'ได้รับ EXP จากหลักฐานที่ผ่านการตรวจสอบ');
+    appendEXPLog_(getValueByHeader_(headers, rowValues, 'UserID') || getValueByHeader_(headers, rowValues, 'StudentID') || getValueByHeader_(headers, rowValues, 'StudentName'), 'ข้อมูลผ่านการตรวจสอบ', 'ข้อมูลขยะผ่านการตรวจสอบโดยครู', 20, getValueByHeader_(headers, rowValues, 'RecordID'), 'ได้รับ EXP จากหลักฐานที่ผ่านการตรวจสอบ');
   }
   appendObject_('EvidenceReview', EVIDENCE_REVIEW_HEADERS, {
     ReviewID: makeId_('RV'),
@@ -411,8 +412,10 @@ function summarizeHouseholds_(records) {
     const totalCO2e = sum_(rows, 'TotalCO2e');
     return {
       HouseholdName: house,
+      UserID: last.UserID || '',
       StudentName: last.StudentName || '',
       ClassName: last.ClassName || '',
+      StudentID: last.StudentID || '',
       TotalSubmissions: rows.length,
       TotalWasteKg: round_(rows.reduce((t, r) => t + Number(r.GeneralWasteKg || 0) + Number(r.RecycleWasteKg || 0) + Number(r.OrganicWasteKg || 0) + Number(r.HazardousWasteAmount || 0), 0)),
       TotalManagedWasteKg: round_(rows.reduce((t, r) => t + ACTIVITY_FIELDS.slice(0, 10).reduce((s, f) => s + Number(r[f] || 0), 0), 0)),
