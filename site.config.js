@@ -7,6 +7,7 @@ window.GREEN_PASSPORT_CONFIG = {
     projectId: "green-passport-4499c",
     storageBucket: "green-passport-4499c.firebasestorage.app",
     messagingSenderId: "806228568657",
-    appId: "1:806228568657:web:3b051ec1b64267cf792670"
+    appId: "1:806228568657:web:3b051ec1b64267cf792670",
+    measurementId: "G-R6382BCNLE"
   }
 };

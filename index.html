@@ -2071,7 +2071,6 @@
         }
       };
     })();
-
     const SHEET_ID = '1G0rL3YSQexyiMp7vPu8DdOo2tUZk9xIhi1E1poaJqi4';
     const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/edit`;
     const SHEET_API_STORAGE_KEY = 'greenPassportSheetApiUrl';
@@ -2083,6 +2082,24 @@
     const siteConfig = window.GREEN_PASSPORT_CONFIG || {};
     let sheetApiUrl = queryParams.get('api') || siteConfig.sheetApiUrl || localStorage.getItem(SHEET_API_STORAGE_KEY) || '';
     if (queryParams.get('api')) localStorage.setItem(SHEET_API_STORAGE_KEY, sheetApiUrl);
+
+    // Global Firebase initialization and service references
+    let firebaseApp = null;
+    let firebaseAuth = null;
+    let firebaseFs = null;
+    let firebaseDb = null;
+
+    if (siteConfig.firebase && siteConfig.firebase.apiKey) {
+      try {
+        firebaseApp = firebase.initializeApp(siteConfig.firebase);
+        firebaseAuth = firebase.auth();
+        firebaseFs = firebase.firestore();
+        firebaseDb = firebase.database();
+        console.log("Firebase initialized successfully");
+      } catch (e) {
+        console.error("Firebase initialization failed:", e);
+      }
+    }
     const pages = [
       ['home', 'หน้าแรก', 'home'],
       ['record', 'บันทึกข้อมูลขยะ', 'edit'],
@@ -2854,6 +2871,113 @@
       });
       if (!result.ReviewStatus && result.HouseholdName) result.ReviewStatus = 'รอตรวจสอบ';
       return result;
+    }
+
+    // Firebase helper functions
+    async function firebaseEmailLookup(login) {
+      if (!login) throw new Error('กรุณากรอกข้อมูลเพื่อเข้าสู่ระบบ');
+      const cleanLogin = String(login).trim().toLowerCase();
+      if (cleanLogin.includes('@')) {
+        return cleanLogin;
+      }
+      if (!firebaseFs) {
+        throw new Error('ระบบเชื่อมต่อฐานข้อมูลยังไม่พร้อมใช้งาน');
+      }
+      const usernameDoc = await firebaseFs.collection('usernames').doc(cleanLogin).get();
+      if (usernameDoc.exists) {
+        return usernameDoc.data().email;
+      }
+      const studentDoc = await firebaseFs.collection('studentIDs').doc(cleanLogin).get();
+      if (studentDoc.exists) {
+        return studentDoc.data().email;
+      }
+      throw new Error('ไม่พบข้อมูลบัญชีผู้ใช้นี้ในระบบ');
+    }
+
+    function deriveEmail(usernameOrStudentId, emailInput) {
+      const cleanInput = String(emailInput || '').trim().toLowerCase();
+      if (cleanInput && cleanInput.includes('@')) {
+        return cleanInput;
+      }
+      const cleanId = String(usernameOrStudentId || '').trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+      return `${cleanId}@greenpassport.local`;
+    }
+
+    async function fetchUserProfilesFromFirestore() {
+      if (!firebaseFs) return;
+      try {
+        const snapshot = await firebaseFs.collection('userProfiles').get();
+        const profiles = [];
+        snapshot.forEach((doc) => {
+          profiles.push(Object.assign({ UserID: doc.id }, doc.data()));
+        });
+        state.data.userProfiles = profiles.map(normalizeRow);
+        renderAll();
+      } catch (e) {
+        console.error("Error fetching user profiles from Firestore:", e);
+      }
+    }
+
+    // Firebase Realtime DB Chat Subscriptions
+    let currentChatSubscription = null;
+    function subscribeToFirebaseChat(roomId) {
+      if (currentChatSubscription) {
+        currentChatSubscription.off();
+      }
+      if (!firebaseDb) return;
+      currentChatSubscription = firebaseDb.ref(`chatMessages/${roomId}`).orderByChild('Timestamp');
+      currentChatSubscription.on('value', (snapshot) => {
+        const val = snapshot.val();
+        const list = [];
+        if (val) {
+          Object.keys(val).forEach(key => {
+            list.push(val[key]);
+          });
+        }
+        // sort by Timestamp
+        list.sort((a, b) => String(a.Timestamp || '').localeCompare(String(b.Timestamp || '')));
+        
+        // Update local state.data.chatMessages with these messages
+        state.data.chatMessages = state.data.chatMessages.filter(m => m.ChatRoomID !== roomId);
+        state.data.chatMessages.push(...list.map(normalizeRow));
+        
+        // Render chat if current page is chat
+        if (state.active === 'chat') {
+          renderChat();
+        }
+      });
+    }
+
+    async function completeAuthSession(result, remember = true) {
+      const session = {
+        token: result.token || randomToken('session'),
+        user: normalizeAuthUser(result.user || {}),
+      };
+      state.authToken = session.token;
+      state.currentUser = session.user;
+      state.authMessage = '';
+      state.authMessageType = '';
+      if (remember) persistAuthSession(session);
+      else sessionStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(session));
+      applyCurrentUserToState();
+      document.body.classList.remove('auth-locked');
+      renderNav();
+      renderAll();
+      try {
+        await reloadData(true);
+        applyCurrentUserToState();
+        if (firebaseFs) {
+          await fetchUserProfilesFromFirestore();
+        }
+        if (state.active === 'chat' && firebaseDb) {
+          subscribeToFirebaseChat(state.chatRoom || 'CR-MISSION-01');
+        }
+        saveToLocalStorage();
+        await syncPendingWrites();
+        renderAll();
+      } catch (error) {
+        console.warn(error);
+      }
     }
 
     async function sheetApi(action, payload = {}) {
