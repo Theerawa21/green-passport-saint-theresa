@@ -1,4 +1,4 @@
-    function createInitialGameState() {
+function createInitialGameState() {
       return {
         screen: 'start',
         profile: { firstName: '', lastName: '', className: '', studentId: '', teamName: 'Green Team' },
@@ -20,7 +20,59 @@
       };
     }
 
+    function hydrateGameFromScores() {
+      if (typeof currentUserIdentity !== 'function') return;
+      const user = currentUserIdentity();
+      const userScores = (state.data.gameScores || []).filter((s) => {
+        const studentIdMatch = s.StudentID && String(s.StudentID).trim() === String(user.StudentID).trim();
+        const fullName = `${state.currentUser?.FirstName || ''} ${state.currentUser?.LastName || ''}`.trim();
+        const nameMatch = s.FullName && String(s.FullName).trim().toLowerCase() === fullName.toLowerCase();
+        return studentIdMatch || nameMatch;
+      });
+
+      if (!userScores.length) return;
+      
+      // Sort to get the highest total score
+      userScores.sort((a, b) => Number(b.TotalScore || 0) - Number(a.TotalScore || 0));
+      const savedScore = userScores[0];
+      
+      // Fill profile if currently empty
+      if (!state.game.profile.studentId && !state.game.profile.firstName) {
+        state.game.profile = {
+          firstName: savedScore.FirstName || state.currentUser?.FirstName || '',
+          lastName: savedScore.LastName || state.currentUser?.LastName || '',
+          className: savedScore.ClassName || user.ClassName || '',
+          studentId: savedScore.StudentID || user.StudentID || '',
+          teamName: savedScore.TeamName || state.currentUser?.DisplayName || 'Green Team',
+        };
+      }
+      
+      // Populate stage results
+      gameStages.forEach((stage, index) => {
+        const scoreKey = `Stage${index + 1}Score`;
+        const starsKey = `Stage${index + 1}Stars`;
+        const score = Number(savedScore[scoreKey] || 0);
+        const stars = Number(savedScore[starsKey] || 0);
+        
+        if (score > 0 && score > state.game.stageResults[index].score) {
+          state.game.stageResults[index] = {
+            stageId: stage.id,
+            name: stage.name,
+            score,
+            stars,
+            completed: true,
+            badge: stage.badge || '',
+          };
+        }
+      });
+    }
+
     function renderGame() {
+      try {
+        hydrateGameFromScores();
+      } catch (e) {
+        console.warn("Failed to hydrate game from scores:", e);
+      }
       const view = {
         start: renderGameStart,
         profile: renderGameProfile,
@@ -57,7 +109,14 @@
     }
 
     function renderGameProfile() {
-      const p = state.game.profile;
+      const user = typeof currentUserIdentity === 'function' ? currentUserIdentity() : {};
+      const p = {
+        firstName: state.game.profile.firstName || state.currentUser?.FirstName || '',
+        lastName: state.game.profile.lastName || state.currentUser?.LastName || '',
+        className: state.game.profile.className || user.ClassName || '',
+        studentId: state.game.profile.studentId || user.StudentID || '',
+        teamName: state.game.profile.teamName || state.currentUser?.DisplayName || 'Green Team',
+      };
       const total = gameTotals();
       return `
         <form class="panel" id="gameProfileForm" onsubmit="saveGameProfile(event)">
@@ -385,6 +444,11 @@
         alert('บันทึกคะแนนเกมลง Google Sheets เรียบร้อย ✅\nยินดีด้วย! คุณได้รับ Badge ใหม่ 🏆');
         goGameScreen(allStagesComplete() ? 'certificate' : 'map');
       }).catch((error) => {
+        if (typeof normalizeRow === 'function') {
+          state.data.gameScores.push(normalizeRow(score));
+        } else {
+          state.data.gameScores.push(score);
+        }
         queuePendingWrite('appendGameScore', { score });
         state.game.saved = true;
         playGameSound('finish');

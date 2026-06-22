@@ -284,8 +284,8 @@
     function profileCanonicalId(profile) {
       const id = String(profile.UserID || profile.DisplayName || '').trim();
       const currentId = String(state.currentUser?.UserID || '').trim();
-      if (!currentId || id === currentId) return id;
-      const aliases = currentUserProfileAliases();
+      
+      const aliases = typeof currentUserProfileAliases === 'function' ? currentUserProfileAliases() : new Set();
       const candidates = [
         profile.UserID,
         profile.StudentID,
@@ -294,7 +294,31 @@
         profile.StudentName,
         profile.FullName,
       ].map((value) => String(value || '').trim()).filter(Boolean);
-      return candidates.some((value) => aliases.has(value)) ? currentId : id;
+      
+      if (currentId && (id === currentId || candidates.some((value) => aliases.has(value)))) {
+        return currentId;
+      }
+      
+      // Look up candidate references in state.data.userProfiles to merge matches for all users
+      const profilesList = state.data.userProfiles || [];
+      for (const candidate of candidates) {
+        if (!candidate || candidate === 'guest') continue;
+        const matched = profilesList.find((p) => {
+          const pId = String(p.UserID || '').trim();
+          const pStudentId = String(p.StudentID || '').trim();
+          const pDisplayName = String(p.DisplayName || '').trim();
+          const pFullName = `${p.FirstName || ''} ${p.LastName || ''}`.trim();
+          return (pId && pId === candidate) ||
+                 (pStudentId && pStudentId === candidate) ||
+                 (pDisplayName && pDisplayName.toLowerCase() === candidate.toLowerCase()) ||
+                 (pFullName && pFullName.toLowerCase() === candidate.toLowerCase());
+        });
+        if (matched && matched.UserID) {
+          return matched.UserID;
+        }
+      }
+      
+      return id;
     }
 
     function mergeProfiles(base = {}, next = {}) {

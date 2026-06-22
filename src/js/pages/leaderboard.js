@@ -1,6 +1,17 @@
     function renderLeaderboard() {
       const topCarbon = [...state.data.householdSummary].sort((a, b) => b.TotalCO2e - a.TotalCO2e);
-      const topGame = [...state.data.gameScores].sort((a, b) => b.TotalScore - a.TotalScore);
+      
+      // Deduplicate gameScores by player identity (StudentID or FullName) to keep only their highest score
+      const uniqueGameScores = {};
+      (state.data.gameScores || []).forEach((row) => {
+        const key = String(row.StudentID || '').trim() || String(row.FullName || '').trim() || 'unknown';
+        if (key === 'unknown') return;
+        if (!uniqueGameScores[key] || Number(row.TotalScore || 0) > Number(uniqueGameScores[key].TotalScore || 0)) {
+          uniqueGameScores[key] = row;
+        }
+      });
+      const topGame = Object.values(uniqueGameScores).sort((a, b) => b.TotalScore - a.TotalScore);
+
       document.getElementById('leaderboard').innerHTML = `
         <div class="grid two">
           <div class="panel"><h3>Leaderboard คาร์บอน</h3>${rankCards(topCarbon, 'carbon')}</div>

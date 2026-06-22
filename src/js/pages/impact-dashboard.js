@@ -1,4 +1,4 @@
-    function impactSummary() {
+function impactSummary() {
       const records = state.data.wasteRecords || [];
       const households = state.data.householdSummary || [];
       const scores = state.data.gameScores || [];
@@ -6,18 +6,18 @@
       const managedWaste = sum(records, 'RecycleWasteKg') + sum(records, 'OrganicWasteKg') + sum(records, 'HazardousWasteAmount');
       const reduceActions = records.reduce((total, row) => total + sumOne(row, ['ReducePlasticBagTimes','CarryBottleTimes','UseLunchBoxTimes','RefuseStrawTimes','CarryClothBagTimes','RepairItemsTimes','DonateItemsTimes']), 0);
       return {
-        households: Math.max(60, households.length),
-        records: Math.max(300, records.length),
-        participants: Math.max(247, participants),
-        studentLeaders: Math.max(60, households.length),
-        familyMembers: Math.max(187, participants - households.length),
-        totalWaste: Math.max(827.12, sum(records, 'GeneralWasteKg') + sum(records, 'RecycleWasteKg') + sum(records, 'OrganicWasteKg') + sum(records, 'HazardousWasteAmount')),
-        managedWaste: Math.max(767.83, managedWaste),
-        co2e: Math.max(600.50, state.data.dashboard.totalCO2e || 0),
-        reduceActions: Math.max(1235, reduceActions),
-        zeroWasteHomes: Math.max(12, households.filter((h) => Number(h.TotalSubmissions || 0) >= 3).length),
-        badges: Math.max(35, scores.reduce((total, row) => total + String(row.Badges || '').split(',').filter(Boolean).length, 0)),
-        gamePlayers: Math.max(60, scores.length),
+        households: households.length,
+        records: records.length,
+        participants: participants,
+        studentLeaders: households.length,
+        familyMembers: Math.max(0, participants - households.length),
+        totalWaste: sum(records, 'GeneralWasteKg') + sum(records, 'RecycleWasteKg') + sum(records, 'OrganicWasteKg') + sum(records, 'HazardousWasteAmount'),
+        managedWaste: managedWaste,
+        co2e: state.data.dashboard.totalCO2e || 0,
+        reduceActions: reduceActions,
+        zeroWasteHomes: households.filter((h) => Number(h.TotalSubmissions || 0) >= 3).length,
+        badges: scores.reduce((total, row) => total + String(row.Badges || '').split(',').filter(Boolean).length, 0),
+        gamePlayers: scores.length,
       };
     }
 
@@ -26,7 +26,7 @@
       const d = state.data.dashboard;
       const beforeAfter = state.data.householdSummary.map((h) => ({
         label: h.HouseholdName,
-        value: Math.max(6, Math.round(Number(h.TotalCO2e || 0) / Math.max(1, Number(h.TotalSubmissions || 1)))),
+        value: Math.round(Number(h.TotalCO2e || 0) / Math.max(1, Number(h.TotalSubmissions || 1))),
       }));
       document.getElementById('impact').innerHTML = `
         <div class="impact-hero">

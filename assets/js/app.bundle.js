@@ -987,8 +987,8 @@
     function profileCanonicalId(profile) {
       const id = String(profile.UserID || profile.DisplayName || '').trim();
       const currentId = String(state.currentUser?.UserID || '').trim();
-      if (!currentId || id === currentId) return id;
-      const aliases = currentUserProfileAliases();
+      
+      const aliases = typeof currentUserProfileAliases === 'function' ? currentUserProfileAliases() : new Set();
       const candidates = [
         profile.UserID,
         profile.StudentID,
@@ -997,7 +997,31 @@
         profile.StudentName,
         profile.FullName,
       ].map((value) => String(value || '').trim()).filter(Boolean);
-      return candidates.some((value) => aliases.has(value)) ? currentId : id;
+      
+      if (currentId && (id === currentId || candidates.some((value) => aliases.has(value)))) {
+        return currentId;
+      }
+      
+      // Look up candidate references in state.data.userProfiles to merge matches for all users
+      const profilesList = state.data.userProfiles || [];
+      for (const candidate of candidates) {
+        if (!candidate || candidate === 'guest') continue;
+        const matched = profilesList.find((p) => {
+          const pId = String(p.UserID || '').trim();
+          const pStudentId = String(p.StudentID || '').trim();
+          const pDisplayName = String(p.DisplayName || '').trim();
+          const pFullName = `${p.FirstName || ''} ${p.LastName || ''}`.trim();
+          return (pId && pId === candidate) ||
+                 (pStudentId && pStudentId === candidate) ||
+                 (pDisplayName && pDisplayName.toLowerCase() === candidate.toLowerCase()) ||
+                 (pFullName && pFullName.toLowerCase() === candidate.toLowerCase());
+        });
+        if (matched && matched.UserID) {
+          return matched.UserID;
+        }
+      }
+      
+      return id;
     }
 
     function mergeProfiles(base = {}, next = {}) {
@@ -2533,7 +2557,7 @@
 
 
 // ---- src/js/pages/game.js ----
-    function createInitialGameState() {
+function createInitialGameState() {
       return {
         screen: 'start',
         profile: { firstName: '', lastName: '', className: '', studentId: '', teamName: 'Green Team' },
@@ -2555,7 +2579,59 @@
       };
     }
 
+    function hydrateGameFromScores() {
+      if (typeof currentUserIdentity !== 'function') return;
+      const user = currentUserIdentity();
+      const userScores = (state.data.gameScores || []).filter((s) => {
+        const studentIdMatch = s.StudentID && String(s.StudentID).trim() === String(user.StudentID).trim();
+        const fullName = `${state.currentUser?.FirstName || ''} ${state.currentUser?.LastName || ''}`.trim();
+        const nameMatch = s.FullName && String(s.FullName).trim().toLowerCase() === fullName.toLowerCase();
+        return studentIdMatch || nameMatch;
+      });
+
+      if (!userScores.length) return;
+      
+      // Sort to get the highest total score
+      userScores.sort((a, b) => Number(b.TotalScore || 0) - Number(a.TotalScore || 0));
+      const savedScore = userScores[0];
+      
+      // Fill profile if currently empty
+      if (!state.game.profile.studentId && !state.game.profile.firstName) {
+        state.game.profile = {
+          firstName: savedScore.FirstName || state.currentUser?.FirstName || '',
+          lastName: savedScore.LastName || state.currentUser?.LastName || '',
+          className: savedScore.ClassName || user.ClassName || '',
+          studentId: savedScore.StudentID || user.StudentID || '',
+          teamName: savedScore.TeamName || state.currentUser?.DisplayName || 'Green Team',
+        };
+      }
+      
+      // Populate stage results
+      gameStages.forEach((stage, index) => {
+        const scoreKey = `Stage${index + 1}Score`;
+        const starsKey = `Stage${index + 1}Stars`;
+        const score = Number(savedScore[scoreKey] || 0);
+        const stars = Number(savedScore[starsKey] || 0);
+        
+        if (score > 0 && score > state.game.stageResults[index].score) {
+          state.game.stageResults[index] = {
+            stageId: stage.id,
+            name: stage.name,
+            score,
+            stars,
+            completed: true,
+            badge: stage.badge || '',
+          };
+        }
+      });
+    }
+
     function renderGame() {
+      try {
+        hydrateGameFromScores();
+      } catch (e) {
+        console.warn("Failed to hydrate game from scores:", e);
+      }
       const view = {
         start: renderGameStart,
         profile: renderGameProfile,
@@ -2592,7 +2668,14 @@
     }
 
     function renderGameProfile() {
-      const p = state.game.profile;
+      const user = typeof currentUserIdentity === 'function' ? currentUserIdentity() : {};
+      const p = {
+        firstName: state.game.profile.firstName || state.currentUser?.FirstName || '',
+        lastName: state.game.profile.lastName || state.currentUser?.LastName || '',
+        className: state.game.profile.className || user.ClassName || '',
+        studentId: state.game.profile.studentId || user.StudentID || '',
+        teamName: state.game.profile.teamName || state.currentUser?.DisplayName || 'Green Team',
+      };
       const total = gameTotals();
       return `
         <form class="panel" id="gameProfileForm" onsubmit="saveGameProfile(event)">
@@ -2920,6 +3003,11 @@
         alert('บันทึกคะแนนเกมลง Google Sheets เรียบร้อย ✅\nยินดีด้วย! คุณได้รับ Badge ใหม่ 🏆');
         goGameScreen(allStagesComplete() ? 'certificate' : 'map');
       }).catch((error) => {
+        if (typeof normalizeRow === 'function') {
+          state.data.gameScores.push(normalizeRow(score));
+        } else {
+          state.data.gameScores.push(score);
+        }
         queuePendingWrite('appendGameScore', { score });
         state.game.saved = true;
         playGameSound('finish');
@@ -2932,7 +3020,18 @@
 // ---- src/js/pages/leaderboard.js ----
     function renderLeaderboard() {
       const topCarbon = [...state.data.householdSummary].sort((a, b) => b.TotalCO2e - a.TotalCO2e);
-      const topGame = [...state.data.gameScores].sort((a, b) => b.TotalScore - a.TotalScore);
+      
+      // Deduplicate gameScores by player identity (StudentID or FullName) to keep only their highest score
+      const uniqueGameScores = {};
+      (state.data.gameScores || []).forEach((row) => {
+        const key = String(row.StudentID || '').trim() || String(row.FullName || '').trim() || 'unknown';
+        if (key === 'unknown') return;
+        if (!uniqueGameScores[key] || Number(row.TotalScore || 0) > Number(uniqueGameScores[key].TotalScore || 0)) {
+          uniqueGameScores[key] = row;
+        }
+      });
+      const topGame = Object.values(uniqueGameScores).sort((a, b) => b.TotalScore - a.TotalScore);
+
       document.getElementById('leaderboard').innerHTML = `
         <div class="grid two">
           <div class="panel"><h3>Leaderboard คาร์บอน</h3>${rankCards(topCarbon, 'carbon')}</div>
@@ -3796,7 +3895,7 @@
 
 
 // ---- src/js/pages/impact-dashboard.js ----
-    function impactSummary() {
+function impactSummary() {
       const records = state.data.wasteRecords || [];
       const households = state.data.householdSummary || [];
       const scores = state.data.gameScores || [];
@@ -3804,18 +3903,18 @@
       const managedWaste = sum(records, 'RecycleWasteKg') + sum(records, 'OrganicWasteKg') + sum(records, 'HazardousWasteAmount');
       const reduceActions = records.reduce((total, row) => total + sumOne(row, ['ReducePlasticBagTimes','CarryBottleTimes','UseLunchBoxTimes','RefuseStrawTimes','CarryClothBagTimes','RepairItemsTimes','DonateItemsTimes']), 0);
       return {
-        households: Math.max(60, households.length),
-        records: Math.max(300, records.length),
-        participants: Math.max(247, participants),
-        studentLeaders: Math.max(60, households.length),
-        familyMembers: Math.max(187, participants - households.length),
-        totalWaste: Math.max(827.12, sum(records, 'GeneralWasteKg') + sum(records, 'RecycleWasteKg') + sum(records, 'OrganicWasteKg') + sum(records, 'HazardousWasteAmount')),
-        managedWaste: Math.max(767.83, managedWaste),
-        co2e: Math.max(600.50, state.data.dashboard.totalCO2e || 0),
-        reduceActions: Math.max(1235, reduceActions),
-        zeroWasteHomes: Math.max(12, households.filter((h) => Number(h.TotalSubmissions || 0) >= 3).length),
-        badges: Math.max(35, scores.reduce((total, row) => total + String(row.Badges || '').split(',').filter(Boolean).length, 0)),
-        gamePlayers: Math.max(60, scores.length),
+        households: households.length,
+        records: records.length,
+        participants: participants,
+        studentLeaders: households.length,
+        familyMembers: Math.max(0, participants - households.length),
+        totalWaste: sum(records, 'GeneralWasteKg') + sum(records, 'RecycleWasteKg') + sum(records, 'OrganicWasteKg') + sum(records, 'HazardousWasteAmount'),
+        managedWaste: managedWaste,
+        co2e: state.data.dashboard.totalCO2e || 0,
+        reduceActions: reduceActions,
+        zeroWasteHomes: households.filter((h) => Number(h.TotalSubmissions || 0) >= 3).length,
+        badges: scores.reduce((total, row) => total + String(row.Badges || '').split(',').filter(Boolean).length, 0),
+        gamePlayers: scores.length,
       };
     }
 
@@ -3824,7 +3923,7 @@
       const d = state.data.dashboard;
       const beforeAfter = state.data.householdSummary.map((h) => ({
         label: h.HouseholdName,
-        value: Math.max(6, Math.round(Number(h.TotalCO2e || 0) / Math.max(1, Number(h.TotalSubmissions || 1)))),
+        value: Math.round(Number(h.TotalCO2e || 0) / Math.max(1, Number(h.TotalSubmissions || 1))),
       }));
       document.getElementById('impact').innerHTML = `
         <div class="impact-hero">
