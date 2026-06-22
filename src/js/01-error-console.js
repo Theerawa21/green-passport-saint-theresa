@@ -98,6 +98,61 @@
       };
     })();
 
+    // Global loading overlay for slow Google Sheets operations.
+    (function() {
+      let loadingCount = 0;
+      let loadingMessage = 'กำลังดำเนินการ...';
+
+      function ensureLoadingOverlay() {
+        let overlay = document.getElementById('globalLoadingOverlay');
+        if (overlay) return overlay;
+        overlay = document.createElement('div');
+        overlay.id = 'globalLoadingOverlay';
+        overlay.className = 'global-loading-overlay';
+        overlay.setAttribute('role', 'status');
+        overlay.setAttribute('aria-live', 'polite');
+        overlay.setAttribute('aria-modal', 'true');
+        overlay.innerHTML = `
+          <div class="global-loading-card">
+            <div class="global-loading-spinner" aria-hidden="true"></div>
+            <div class="global-loading-copy">
+              <strong id="globalLoadingTitle">กำลังบันทึกข้อมูล</strong>
+              <p id="globalLoadingMessage">กรุณารอสักครู่ ระบบกำลังเชื่อมต่อ Google Sheets</p>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(overlay);
+        return overlay;
+      }
+
+      window.showGlobalLoading = function(message = 'กรุณารอสักครู่ ระบบกำลังเชื่อมต่อ Google Sheets', title = 'กำลังบันทึกข้อมูล') {
+        loadingCount += 1;
+        loadingMessage = message || loadingMessage;
+        const overlay = ensureLoadingOverlay();
+        const titleEl = document.getElementById('globalLoadingTitle');
+        const messageEl = document.getElementById('globalLoadingMessage');
+        if (titleEl) titleEl.textContent = title;
+        if (messageEl) messageEl.textContent = loadingMessage;
+        overlay.classList.add('active');
+        document.body.classList.add('global-loading-active');
+      };
+
+      window.hideGlobalLoading = function() {
+        loadingCount = Math.max(0, loadingCount - 1);
+        if (loadingCount > 0) return;
+        const overlay = document.getElementById('globalLoadingOverlay');
+        if (overlay) overlay.classList.remove('active');
+        document.body.classList.remove('global-loading-active');
+      };
+
+      window.resetGlobalLoading = function() {
+        loadingCount = 0;
+        const overlay = document.getElementById('globalLoadingOverlay');
+        if (overlay) overlay.classList.remove('active');
+        document.body.classList.remove('global-loading-active');
+      };
+    })();
+
     // Custom Alert & Confirm modal implementation
     (function() {
       const alertQueue = [];

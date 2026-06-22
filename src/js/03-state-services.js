@@ -518,9 +518,38 @@
       }
     }
 
+    function sheetApiLoadingText(action) {
+      return {
+        getBootstrapData: ['กำลังโหลดข้อมูลล่าสุด', 'ระบบกำลังอ่านข้อมูลจาก Google Sheets'],
+        appendWasteRecord: ['กำลังบันทึกข้อมูลขยะ', 'ระบบกำลังส่งข้อมูลและหลักฐานไปยัง Google Sheets'],
+        appendGameScore: ['กำลังบันทึกคะแนนเกม', 'ระบบกำลังบันทึกคะแนน Trash Hero Academy'],
+        appendCommunityPost: ['กำลังบันทึกโพสต์', 'ระบบกำลังส่งโพสต์ไปยัง Google Sheets'],
+        appendPostComment: ['กำลังบันทึกความคิดเห็น', 'ระบบกำลังส่งความคิดเห็นไปยัง Google Sheets'],
+        appendChatMessage: ['กำลังส่งข้อความ', 'ระบบกำลังบันทึกข้อความไปยัง Google Sheets'],
+        reportChatMessage: ['กำลังส่งรายงานข้อความ', 'ระบบกำลังบันทึกรายงานให้ครูผู้ดูแล'],
+        archiveChatMessages: ['กำลังสำรองข้อความ', 'ระบบกำลังบันทึกข้อความแชทลง Google Sheets'],
+        sendCommunityLike: ['กำลังบันทึกกำลังใจ', 'ระบบกำลังอัปเดตจำนวนกำลังใจใน Google Sheets'],
+        updateReview: ['กำลังบันทึกผลตรวจ', 'ระบบกำลังบันทึกผลตรวจหลักฐานลง Google Sheets'],
+        updateCommunityPostReview: ['กำลังบันทึกผลตรวจโพสต์', 'ระบบกำลังอัปเดตสถานะโพสต์ใน Google Sheets'],
+        updatePostCommentReview: ['กำลังบันทึกผลตรวจความคิดเห็น', 'ระบบกำลังอัปเดตสถานะความคิดเห็นใน Google Sheets'],
+        updateChatMessageModeration: ['กำลังบันทึกสถานะแชท', 'ระบบกำลังอัปเดตสถานะข้อความใน Google Sheets'],
+        logExportReport: ['กำลังบันทึกประวัติ Export', 'ระบบกำลังบันทึกประวัติรายงานใน Google Sheets'],
+        adminLogin: ['กำลังตรวจสอบ PIN', 'ระบบกำลังตรวจสอบสิทธิ์ผู้ดูแลผ่าน Google Sheets'],
+        loginUser: ['กำลังเข้าสู่ระบบ', 'ระบบกำลังตรวจสอบบัญชีผู้ใช้'],
+        signupUser: ['กำลังสมัครสมาชิก', 'ระบบกำลังสร้างบัญชีและบันทึกข้อมูล'],
+        logoutUser: ['กำลังออกจากระบบ', 'ระบบกำลังปิด session ผู้ใช้'],
+      }[action] || ['กำลังเชื่อมต่อ Google Sheets', 'กรุณารอสักครู่ ระบบกำลังดำเนินการ'];
+    }
+
     async function sheetApi(action, payload = {}) {
       if (!sheetApiConfigured()) throw new Error('ยังไม่ได้ตั้งค่า Apps Script Web App endpoint สำหรับบันทึกลง Google Sheets');
-      return sheetApiViaFrame(action, payload);
+      const [title, message] = sheetApiLoadingText(action);
+      window.showGlobalLoading?.(message, title);
+      try {
+        return await sheetApiViaFrame(action, payload);
+      } finally {
+        window.hideGlobalLoading?.();
+      }
     }
 
     function sheetApiViaFrame(action, payload = {}) {

@@ -102,6 +102,61 @@
       };
     })();
 
+    // Global loading overlay for slow Google Sheets operations.
+    (function() {
+      let loadingCount = 0;
+      let loadingMessage = 'กำลังดำเนินการ...';
+
+      function ensureLoadingOverlay() {
+        let overlay = document.getElementById('globalLoadingOverlay');
+        if (overlay) return overlay;
+        overlay = document.createElement('div');
+        overlay.id = 'globalLoadingOverlay';
+        overlay.className = 'global-loading-overlay';
+        overlay.setAttribute('role', 'status');
+        overlay.setAttribute('aria-live', 'polite');
+        overlay.setAttribute('aria-modal', 'true');
+        overlay.innerHTML = `
+          <div class="global-loading-card">
+            <div class="global-loading-spinner" aria-hidden="true"></div>
+            <div class="global-loading-copy">
+              <strong id="globalLoadingTitle">กำลังบันทึกข้อมูล</strong>
+              <p id="globalLoadingMessage">กรุณารอสักครู่ ระบบกำลังเชื่อมต่อ Google Sheets</p>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(overlay);
+        return overlay;
+      }
+
+      window.showGlobalLoading = function(message = 'กรุณารอสักครู่ ระบบกำลังเชื่อมต่อ Google Sheets', title = 'กำลังบันทึกข้อมูล') {
+        loadingCount += 1;
+        loadingMessage = message || loadingMessage;
+        const overlay = ensureLoadingOverlay();
+        const titleEl = document.getElementById('globalLoadingTitle');
+        const messageEl = document.getElementById('globalLoadingMessage');
+        if (titleEl) titleEl.textContent = title;
+        if (messageEl) messageEl.textContent = loadingMessage;
+        overlay.classList.add('active');
+        document.body.classList.add('global-loading-active');
+      };
+
+      window.hideGlobalLoading = function() {
+        loadingCount = Math.max(0, loadingCount - 1);
+        if (loadingCount > 0) return;
+        const overlay = document.getElementById('globalLoadingOverlay');
+        if (overlay) overlay.classList.remove('active');
+        document.body.classList.remove('global-loading-active');
+      };
+
+      window.resetGlobalLoading = function() {
+        loadingCount = 0;
+        const overlay = document.getElementById('globalLoadingOverlay');
+        if (overlay) overlay.classList.remove('active');
+        document.body.classList.remove('global-loading-active');
+      };
+    })();
+
     // Custom Alert & Confirm modal implementation
     (function() {
       const alertQueue = [];
@@ -1166,9 +1221,38 @@
       }
     }
 
+    function sheetApiLoadingText(action) {
+      return {
+        getBootstrapData: ['กำลังโหลดข้อมูลล่าสุด', 'ระบบกำลังอ่านข้อมูลจาก Google Sheets'],
+        appendWasteRecord: ['กำลังบันทึกข้อมูลขยะ', 'ระบบกำลังส่งข้อมูลและหลักฐานไปยัง Google Sheets'],
+        appendGameScore: ['กำลังบันทึกคะแนนเกม', 'ระบบกำลังบันทึกคะแนน Trash Hero Academy'],
+        appendCommunityPost: ['กำลังบันทึกโพสต์', 'ระบบกำลังส่งโพสต์ไปยัง Google Sheets'],
+        appendPostComment: ['กำลังบันทึกความคิดเห็น', 'ระบบกำลังส่งความคิดเห็นไปยัง Google Sheets'],
+        appendChatMessage: ['กำลังส่งข้อความ', 'ระบบกำลังบันทึกข้อความไปยัง Google Sheets'],
+        reportChatMessage: ['กำลังส่งรายงานข้อความ', 'ระบบกำลังบันทึกรายงานให้ครูผู้ดูแล'],
+        archiveChatMessages: ['กำลังสำรองข้อความ', 'ระบบกำลังบันทึกข้อความแชทลง Google Sheets'],
+        sendCommunityLike: ['กำลังบันทึกกำลังใจ', 'ระบบกำลังอัปเดตจำนวนกำลังใจใน Google Sheets'],
+        updateReview: ['กำลังบันทึกผลตรวจ', 'ระบบกำลังบันทึกผลตรวจหลักฐานลง Google Sheets'],
+        updateCommunityPostReview: ['กำลังบันทึกผลตรวจโพสต์', 'ระบบกำลังอัปเดตสถานะโพสต์ใน Google Sheets'],
+        updatePostCommentReview: ['กำลังบันทึกผลตรวจความคิดเห็น', 'ระบบกำลังอัปเดตสถานะความคิดเห็นใน Google Sheets'],
+        updateChatMessageModeration: ['กำลังบันทึกสถานะแชท', 'ระบบกำลังอัปเดตสถานะข้อความใน Google Sheets'],
+        logExportReport: ['กำลังบันทึกประวัติ Export', 'ระบบกำลังบันทึกประวัติรายงานใน Google Sheets'],
+        adminLogin: ['กำลังตรวจสอบ PIN', 'ระบบกำลังตรวจสอบสิทธิ์ผู้ดูแลผ่าน Google Sheets'],
+        loginUser: ['กำลังเข้าสู่ระบบ', 'ระบบกำลังตรวจสอบบัญชีผู้ใช้'],
+        signupUser: ['กำลังสมัครสมาชิก', 'ระบบกำลังสร้างบัญชีและบันทึกข้อมูล'],
+        logoutUser: ['กำลังออกจากระบบ', 'ระบบกำลังปิด session ผู้ใช้'],
+      }[action] || ['กำลังเชื่อมต่อ Google Sheets', 'กรุณารอสักครู่ ระบบกำลังดำเนินการ'];
+    }
+
     async function sheetApi(action, payload = {}) {
       if (!sheetApiConfigured()) throw new Error('ยังไม่ได้ตั้งค่า Apps Script Web App endpoint สำหรับบันทึกลง Google Sheets');
-      return sheetApiViaFrame(action, payload);
+      const [title, message] = sheetApiLoadingText(action);
+      window.showGlobalLoading?.(message, title);
+      try {
+        return await sheetApiViaFrame(action, payload);
+      } finally {
+        window.hideGlobalLoading?.();
+      }
     }
 
     function sheetApiViaFrame(action, payload = {}) {
