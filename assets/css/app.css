@@ -53,7 +53,9 @@
       position: sticky;
       top: 0;
       height: 100vh;
-      overflow: auto;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
     }
     .brand {
       display: grid;
@@ -112,6 +114,13 @@
       display: grid;
       gap: 8px;
     }
+    #sideNav {
+      flex: 1;
+      align-content: start;
+      padding-bottom: 18px;
+      min-height: 0;
+      overflow: auto;
+    }
     .nav-btn {
       display: grid;
       grid-template-columns: 26px 1fr;
@@ -129,6 +138,55 @@
     .nav-btn:hover {
       background: rgba(255,255,255,0.17);
       color: #fff;
+    }
+    .sidebar-footer {
+      margin-top: auto;
+      padding-top: 14px;
+      display: grid;
+      gap: 10px;
+      border-top: 1px solid rgba(255,255,255,0.18);
+      flex-shrink: 0;
+    }
+    .sidebar-profile-nav {
+      display: grid;
+      gap: 8px;
+    }
+    .sidebar-profile-btn {
+      background: rgba(255,255,255,0.1);
+    }
+    .sidebar-user-chip {
+      width: 100%;
+      min-width: 0;
+      color: #fff;
+      background: rgba(255,255,255,0.13);
+      border-color: rgba(255,255,255,0.24);
+      box-shadow: none;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .sidebar-user-chip .avatar {
+      background: rgba(255,255,255,0.94);
+      color: var(--green-800);
+      border-color: rgba(255,255,255,0.7);
+      box-shadow: none;
+    }
+    .sidebar-user-chip strong,
+    .sidebar-user-chip span {
+      max-width: 128px;
+    }
+    .sidebar-user-chip strong {
+      color: #fff;
+    }
+    .sidebar-user-chip span {
+      color: rgba(255,255,255,0.76);
+    }
+    .sidebar-user-chip button {
+      color: #fff;
+      background: rgba(255,255,255,0.12);
+      border-color: rgba(255,255,255,0.28);
+    }
+    .auth-user-chip.mobile-user-chip {
+      display: none;
     }
     main {
       padding: 24px;
@@ -1826,6 +1884,10 @@
       .mobile-nav { display: grid; }
       .topbar { align-items: stretch; flex-direction: column; }
       .topbar-actions { justify-content: stretch; }
+      .auth-user-chip.mobile-user-chip {
+        display: flex;
+        width: 100%;
+      }
       .auth-user-chip,
       .carbon-pill { min-width: 0; }
       .auth-screen { padding: 12px; align-items: start; }

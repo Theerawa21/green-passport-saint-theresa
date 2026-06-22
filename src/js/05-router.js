@@ -44,10 +44,18 @@
 
     function renderNav() {
       const side = document.getElementById('sideNav');
+      const sidebarProfile = document.getElementById('sidebarProfileNav');
       const mobile = document.getElementById('mobileNav');
       const navPages = mainNavPages();
-      side.innerHTML = navPages.map(([id, label, icon]) => `<button class="nav-btn" data-page="${id}" title="${label}">${icons[icon]}<span>${label}</span></button>`).join('');
-      mobile.innerHTML = navPages.slice(0, 5).map(([id, label, icon]) => `<button data-page="${id}" title="${label}">${icons[icon]}<span>${shortLabel(label)}</span></button>`).join('');
+      const profilePage = navPages.find(([id]) => id === 'profile');
+      const primaryPages = navPages.filter(([id]) => id !== 'profile');
+      const mobilePages = primaryPages.slice(0, 4);
+      if (profilePage) mobilePages.push(profilePage);
+      side.innerHTML = primaryPages.map(([id, label, icon]) => `<button class="nav-btn" data-page="${id}" title="${label}">${icons[icon]}<span>${label}</span></button>`).join('');
+      if (sidebarProfile) {
+        sidebarProfile.innerHTML = profilePage ? `<button class="nav-btn sidebar-profile-btn" data-page="${profilePage[0]}" title="${profilePage[1]}">${icons[profilePage[2]]}<span>${profilePage[1]}</span></button>` : '';
+      }
+      mobile.innerHTML = mobilePages.map(([id, label, icon]) => `<button data-page="${id}" title="${label}">${icons[icon]}<span>${shortLabel(label)}</span></button>`).join('');
       document.querySelectorAll('[data-page]').forEach((btn) => btn.addEventListener('click', () => showPage(btn.dataset.page)));
     }
 

@@ -1297,18 +1297,44 @@
     }
 
     function saveToLocalStorage() {
-      localStorage.setItem(LOCAL_DATA_KEY, JSON.stringify({
-        wasteRecords: state.data.wasteRecords,
-        gameScores: state.data.gameScores,
-        communityPosts: state.data.communityPosts,
-        postComments: state.data.postComments,
-        chatMessages: state.data.chatMessages,
-        chatRooms: state.data.chatRooms,
-        userProfiles: state.data.userProfiles,
-        levelRules: state.data.levelRules,
-        expLogs: state.data.expLogs,
-        settings: state.data.settings,
-      }));
+      try {
+        // Limit the size of social/log data stored in localStorage to prevent quota exceeded errors
+        const recentChatMessages = (state.data.chatMessages || [])
+          .slice()
+          .sort((a, b) => String(b.Timestamp || '').localeCompare(String(a.Timestamp || '')))
+          .slice(0, 50);
+
+        const recentCommunityPosts = (state.data.communityPosts || [])
+          .slice()
+          .sort((a, b) => String(b.Timestamp || '').localeCompare(String(a.Timestamp || '')))
+          .slice(0, 50);
+
+        // Keep comments associated with the recent posts
+        const recentPostIds = new Set(recentCommunityPosts.map(p => p.PostID));
+        const recentPostComments = (state.data.postComments || [])
+          .filter(c => recentPostIds.has(c.PostID))
+          .slice(0, 100);
+
+        const recentExpLogs = (state.data.expLogs || [])
+          .slice()
+          .sort((a, b) => String(b.Timestamp || b.CreatedAt || '').localeCompare(String(a.Timestamp || a.CreatedAt || '')))
+          .slice(0, 50);
+
+        localStorage.setItem(LOCAL_DATA_KEY, JSON.stringify({
+          wasteRecords: state.data.wasteRecords,
+          gameScores: state.data.gameScores,
+          communityPosts: recentCommunityPosts,
+          postComments: recentPostComments,
+          chatMessages: recentChatMessages,
+          chatRooms: state.data.chatRooms,
+          userProfiles: state.data.userProfiles,
+          levelRules: state.data.levelRules,
+          expLogs: recentExpLogs,
+          settings: state.data.settings,
+        }));
+      } catch (e) {
+        console.warn("Failed to save data to localStorage:", e);
+      }
     }
 
     function loadFromLocalStorage() {
@@ -1920,22 +1946,30 @@
     }
 
     function renderAuthUserChip() {
-      const chip = document.getElementById('authUserChip');
-      if (!chip) return;
+      const chips = Array.from(new Set([
+        ...document.querySelectorAll('[data-auth-user-chip]'),
+        document.getElementById('authUserChip'),
+      ].filter(Boolean)));
+      if (!chips.length) return;
       if (!isAuthenticated()) {
-        chip.hidden = true;
-        chip.innerHTML = '';
+        chips.forEach((chip) => {
+          chip.hidden = true;
+          chip.innerHTML = '';
+        });
         return;
       }
       const user = currentUserIdentity();
-      chip.hidden = false;
-      chip.innerHTML = `
+      const chipHtml = `
         <div class="avatar">${escapeHtml(avatarText(user.DisplayName))}</div>
         <div>
           <strong>${escapeHtml(user.DisplayName)}</strong>
           <span>${escapeHtml(user.ClassName || user.Role || 'Green Passport')}</span>
         </div>
         <button type="button" onclick="logout()">Logout</button>`;
+      chips.forEach((chip) => {
+        chip.hidden = false;
+        chip.innerHTML = chipHtml;
+      });
     }
 
 
@@ -1986,10 +2020,18 @@
 
     function renderNav() {
       const side = document.getElementById('sideNav');
+      const sidebarProfile = document.getElementById('sidebarProfileNav');
       const mobile = document.getElementById('mobileNav');
       const navPages = mainNavPages();
-      side.innerHTML = navPages.map(([id, label, icon]) => `<button class="nav-btn" data-page="${id}" title="${label}">${icons[icon]}<span>${label}</span></button>`).join('');
-      mobile.innerHTML = navPages.slice(0, 5).map(([id, label, icon]) => `<button data-page="${id}" title="${label}">${icons[icon]}<span>${shortLabel(label)}</span></button>`).join('');
+      const profilePage = navPages.find(([id]) => id === 'profile');
+      const primaryPages = navPages.filter(([id]) => id !== 'profile');
+      const mobilePages = primaryPages.slice(0, 4);
+      if (profilePage) mobilePages.push(profilePage);
+      side.innerHTML = primaryPages.map(([id, label, icon]) => `<button class="nav-btn" data-page="${id}" title="${label}">${icons[icon]}<span>${label}</span></button>`).join('');
+      if (sidebarProfile) {
+        sidebarProfile.innerHTML = profilePage ? `<button class="nav-btn sidebar-profile-btn" data-page="${profilePage[0]}" title="${profilePage[1]}">${icons[profilePage[2]]}<span>${profilePage[1]}</span></button>` : '';
+      }
+      mobile.innerHTML = mobilePages.map(([id, label, icon]) => `<button data-page="${id}" title="${label}">${icons[icon]}<span>${shortLabel(label)}</span></button>`).join('');
       document.querySelectorAll('[data-page]').forEach((btn) => btn.addEventListener('click', () => showPage(btn.dataset.page)));
     }
 

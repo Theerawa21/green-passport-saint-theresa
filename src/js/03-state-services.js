@@ -594,18 +594,44 @@
     }
 
     function saveToLocalStorage() {
-      localStorage.setItem(LOCAL_DATA_KEY, JSON.stringify({
-        wasteRecords: state.data.wasteRecords,
-        gameScores: state.data.gameScores,
-        communityPosts: state.data.communityPosts,
-        postComments: state.data.postComments,
-        chatMessages: state.data.chatMessages,
-        chatRooms: state.data.chatRooms,
-        userProfiles: state.data.userProfiles,
-        levelRules: state.data.levelRules,
-        expLogs: state.data.expLogs,
-        settings: state.data.settings,
-      }));
+      try {
+        // Limit the size of social/log data stored in localStorage to prevent quota exceeded errors
+        const recentChatMessages = (state.data.chatMessages || [])
+          .slice()
+          .sort((a, b) => String(b.Timestamp || '').localeCompare(String(a.Timestamp || '')))
+          .slice(0, 50);
+
+        const recentCommunityPosts = (state.data.communityPosts || [])
+          .slice()
+          .sort((a, b) => String(b.Timestamp || '').localeCompare(String(a.Timestamp || '')))
+          .slice(0, 50);
+
+        // Keep comments associated with the recent posts
+        const recentPostIds = new Set(recentCommunityPosts.map(p => p.PostID));
+        const recentPostComments = (state.data.postComments || [])
+          .filter(c => recentPostIds.has(c.PostID))
+          .slice(0, 100);
+
+        const recentExpLogs = (state.data.expLogs || [])
+          .slice()
+          .sort((a, b) => String(b.Timestamp || b.CreatedAt || '').localeCompare(String(a.Timestamp || a.CreatedAt || '')))
+          .slice(0, 50);
+
+        localStorage.setItem(LOCAL_DATA_KEY, JSON.stringify({
+          wasteRecords: state.data.wasteRecords,
+          gameScores: state.data.gameScores,
+          communityPosts: recentCommunityPosts,
+          postComments: recentPostComments,
+          chatMessages: recentChatMessages,
+          chatRooms: state.data.chatRooms,
+          userProfiles: state.data.userProfiles,
+          levelRules: state.data.levelRules,
+          expLogs: recentExpLogs,
+          settings: state.data.settings,
+        }));
+      } catch (e) {
+        console.warn("Failed to save data to localStorage:", e);
+      }
     }
 
     function loadFromLocalStorage() {

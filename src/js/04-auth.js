@@ -521,20 +521,28 @@
     }
 
     function renderAuthUserChip() {
-      const chip = document.getElementById('authUserChip');
-      if (!chip) return;
+      const chips = Array.from(new Set([
+        ...document.querySelectorAll('[data-auth-user-chip]'),
+        document.getElementById('authUserChip'),
+      ].filter(Boolean)));
+      if (!chips.length) return;
       if (!isAuthenticated()) {
-        chip.hidden = true;
-        chip.innerHTML = '';
+        chips.forEach((chip) => {
+          chip.hidden = true;
+          chip.innerHTML = '';
+        });
         return;
       }
       const user = currentUserIdentity();
-      chip.hidden = false;
-      chip.innerHTML = `
+      const chipHtml = `
         <div class="avatar">${escapeHtml(avatarText(user.DisplayName))}</div>
         <div>
           <strong>${escapeHtml(user.DisplayName)}</strong>
           <span>${escapeHtml(user.ClassName || user.Role || 'Green Passport')}</span>
         </div>
         <button type="button" onclick="logout()">Logout</button>`;
+      chips.forEach((chip) => {
+        chip.hidden = false;
+        chip.innerHTML = chipHtml;
+      });
     }
