@@ -1,9 +1,40 @@
+    let adminDeferredRenderHandle = null;
+    let adminTableShowAll = false;
+
     function renderAdmin() {
       const loggedIn = !!state.adminPIN;
       document.getElementById('admin').innerHTML = `
         ${loggedIn ? adminPanelHtml() : `<div style="display:flex; justify-content:center; align-items:center; min-height:300px; width:100%;"><div class="panel" style="width:100%; max-width:480px;"><h3>เข้าสู่ระบบ Admin</h3><label>Admin PIN<input id="pinInput" type="password" autocomplete="current-password"></label><button class="btn" style="margin-top:14px" onclick="adminLogin()">${icons.lock}เข้าสู่ระบบ</button><p class="notice" style="margin-top:12px">เฉพาะคณะครูและผู้ดูแลระบบเท่านั้น หากใช้งานครั้งแรกหรือล้างข้อมูลการเชื่อมต่อ สามารถใส่ PIN เริ่มต้น (2468) เพื่อเข้าไปตั้งค่า Google Sheets ได้</p></div></div>`}
       `;
-      if (loggedIn) attachAdminFilters();
+      if (loggedIn) scheduleAdminDeferredRender();
+    }
+
+    function adminLoadingHtml(label) {
+      return `<div class="notice">กำลังโหลด${label}...</div>`;
+    }
+
+    function scheduleAdminDeferredRender() {
+      if (adminDeferredRenderHandle && window.cancelIdleCallback) {
+        window.cancelIdleCallback(adminDeferredRenderHandle);
+      }
+      const run = () => {
+        adminDeferredRenderHandle = null;
+        renderAdminDeferredSections();
+      };
+      adminDeferredRenderHandle = window.requestIdleCallback
+        ? window.requestIdleCallback(run, { timeout: 500 })
+        : setTimeout(run, 0);
+    }
+
+    function renderAdminDeferredSections() {
+      if (state.active !== 'admin' || !state.adminPIN) return;
+      const community = document.getElementById('adminCommunityPanel');
+      const gameScores = document.getElementById('adminGameScoresPanel');
+      const errorConsole = document.getElementById('adminErrorConsolePanel');
+      if (community) community.innerHTML = adminCommunityPanelHtml();
+      if (gameScores) gameScores.innerHTML = adminGameScoresHtml();
+      if (errorConsole) errorConsole.innerHTML = adminErrorConsoleHtml();
+      attachAdminFilters();
     }
 
     function sheetConnectionPanelHtml() {
@@ -88,7 +119,7 @@
           </div>
         </div>
         ${adminToolsPanelHtml()}
-        ${adminCommunityPanelHtml()}
+        <div id="adminCommunityPanel">${adminLoadingHtml('ข้อมูลชุมชน')}</div>
         <div class="panel">
           <h3>Export Reports</h3>
           <div class="download-grid">
@@ -113,9 +144,9 @@
             ].map(([type, label]) => `<button class="btn ghost" onclick="exportCsv('${type}')">${label}</button>`).join('')}
           </div>
         </div>
-        <div class="panel"><h3>ตรวจสอบหลักฐานโดยครู</h3><div id="adminTable"></div></div>
-        <div class="panel"><h3>ผลการเล่นเกม Trash Hero Academy</h3>${adminGameScoresHtml()}</div>
-        ${adminErrorConsoleHtml()}
+        <div class="panel"><h3>ตรวจสอบหลักฐานโดยครู</h3><div id="adminTable">${adminLoadingHtml('ตารางตรวจหลักฐาน')}</div></div>
+        <div class="panel"><h3>ผลการเล่นเกม Trash Hero Academy</h3><div id="adminGameScoresPanel">${adminLoadingHtml('คะแนนเกม')}</div></div>
+        <div id="adminErrorConsolePanel">${adminLoadingHtml('คอนโซล Error')}</div>
       </div>`;
     }
 
@@ -395,7 +426,10 @@
     }
 
     function attachAdminFilters() {
-      ['adminMonth','adminClass','adminName','adminStatus'].forEach((id) => document.getElementById(id)?.addEventListener('input', renderAdminTable));
+      ['adminMonth','adminClass','adminName','adminStatus'].forEach((id) => document.getElementById(id)?.addEventListener('input', () => {
+        adminTableShowAll = false;
+        renderAdminTable();
+      }));
       renderAdminTable();
     }
 
@@ -410,7 +444,11 @@
         (!name || String(r.StudentName || '').includes(name)) &&
         reviewStatusMatches(r.ReviewStatus, status)
       );
-      document.getElementById('adminTable').innerHTML = `<div class="table-wrap"><table><thead><tr><th>วันเวลาส่ง</th><th>นักเรียน</th><th>เดือน</th><th>ขยะ 4 ประเภท</th><th>คาร์บอน</th><th>หลักฐาน</th><th>สถานะ/หมายเหตุ</th><th>จัดการ</th></tr></thead><tbody>${rows.map((r) => `
+      const visibleRows = adminTableShowAll ? rows : rows.slice(0, 50);
+      const tableNote = rows.length > visibleRows.length
+        ? `<div class="notice" style="margin-bottom:12px">แสดง ${visibleRows.length} จาก ${rows.length} รายการ เพื่อให้หน้า Admin เปิดเร็วขึ้น <button class="btn ghost small" type="button" onclick="showAllAdminRows()">แสดงทั้งหมด</button></div>`
+        : `<div class="notice" style="margin-bottom:12px">พบ ${rows.length} รายการ</div>`;
+      document.getElementById('adminTable').innerHTML = `${tableNote}<div class="table-wrap"><table><thead><tr><th>วันเวลาส่ง</th><th>นักเรียน</th><th>เดือน</th><th>ขยะ 4 ประเภท</th><th>คาร์บอน</th><th>หลักฐาน</th><th>สถานะ/หมายเหตุ</th><th>จัดการ</th></tr></thead><tbody>${visibleRows.map((r) => `
         <tr>
           <td>${r.SubmittedAt || '-'}</td>
           <td>${r.StudentName}<br><small>${r.ClassName} | ${r.StudentID}</small></td>
@@ -433,6 +471,11 @@
             </div>
           </td>
         </tr>`).join('')}</tbody></table></div>`;
+    }
+
+    function showAllAdminRows() {
+      adminTableShowAll = true;
+      renderAdminTable();
     }
 
     function reviewStatusOptions(current = '') {
