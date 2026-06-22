@@ -41,6 +41,8 @@ const CHAT_ROOM_HEADERS = ['ChatRoomID','ChatRoomName','ChatRoomType','ClassName
 const USER_PROFILE_HEADERS = ['UserID','DisplayName','FirstName','LastName','ClassName','StudentIDMasked','Avatar','CurrentLevel','CurrentEXP','TotalScore','TotalStars','TotalBadges','TotalPosts','TotalComments','TotalSubmissions','TotalCO2e','HouseholdStatus','LastActiveAt','ConsentStatus'];
 const LEVEL_RULE_HEADERS = ['LevelID','LevelName','Emoji','MinEXP','MaxEXP','Description','UnlockFeature','RewardBadge','DisplayColor'];
 const EXP_LOG_HEADERS = ['LogID','Timestamp','UserID','ActivityType','ActivityDetail','EXPAmount','RelatedID','Note'];
+const APP_USER_HEADERS = ['UserID','Username','Email','Role','DisplayName','FirstName','LastName','ClassName','StudentID','StudentIDMasked','HouseholdName','Avatar','PasswordSalt','PasswordHash','ConsentStatus','Status','CreatedAt','LastLoginAt'];
+const USER_SESSION_HEADERS = ['Token','UserID','CreatedAt','LastSeenAt','ExpiresAt','Status'];
 
 const DEFAULT_CONSENT_TEXT = 'ข้าพเจ้ายินยอมให้โรงเรียนใช้ข้อมูลและภาพหลักฐานที่ส่งผ่านระบบ Green Passport เพื่อการติดตามผลโครงการด้านสิ่งแวดล้อม การจัดทำรายงาน และการนำเสนอผลงานทางการศึกษา โดยโรงเรียนจะใช้ข้อมูลอย่างเหมาะสมและไม่เปิดเผยข้อมูลส่วนบุคคลต่อสาธารณะโดยไม่จำเป็น';
 
@@ -68,6 +70,8 @@ function setupGreenPassport() {
   const rooms = ensureSheet_('ChatRooms', CHAT_ROOM_HEADERS);
   if (rooms.getLastRow() < 2) seedChatRooms_(rooms);
   ensureSheet_('UserProfiles', USER_PROFILE_HEADERS);
+  ensureSheet_('AppUsers', APP_USER_HEADERS);
+  ensureSheet_('UserSessions', USER_SESSION_HEADERS);
   const levels = ensureSheet_('LevelRules', LEVEL_RULE_HEADERS);
   if (levels.getLastRow() < 2) seedLevelRules_(levels);
   ensureSheet_('EXPLogs', EXP_LOG_HEADERS);
@@ -105,6 +109,10 @@ function handleRequest_(req) {
   if (req.action === 'getBootstrapData') return { ok: true, data: getBootstrapData_() };
   if (req.action === 'appendWasteRecord') return appendWasteRecord_(req.record || {});
   if (req.action === 'appendGameScore') return appendGameScore_(req.score || {});
+  if (req.action === 'signupUser') return signupUser_(req);
+  if (req.action === 'loginUser') return loginUser_(req);
+  if (req.action === 'validateSession') return validateSession_(req);
+  if (req.action === 'logoutUser') return logoutUser_(req);
   if (req.action === 'adminLogin') return verifyPin_(req.pin) ? { ok: true } : { ok: false, message: 'Admin PIN ไม่ถูกต้อง' };
   if (req.action === 'updateReview') return updateReview_(req);
   if (req.action === 'logExportReport') return logExportReport_(req);
@@ -117,6 +125,207 @@ function handleRequest_(req) {
   if (req.action === 'reportChatMessage') return reportChatMessage_(req);
   if (req.action === 'sendCommunityLike') return sendCommunityLike_(req);
   return { ok: false, message: 'Unknown action' };
+}
+
+function signupUser_(req) {
+  const password = String(req.password || '');
+  if (password.length < 6) return { ok: false, message: 'Password ต้องมีอย่างน้อย 6 ตัวอักษร' };
+  const user = normalizeAppUser_(req.user || {});
+  if (!user.Username && !user.Email && !user.StudentID) return { ok: false, message: 'กรุณากรอก Username, Email หรือรหัสนักเรียน' };
+  if (findUserMatch_(user)) return { ok: false, message: 'บัญชีนี้มีอยู่แล้ว กรุณา Login หรือใช้ Username อื่น' };
+  const now = new Date();
+  const salt = Utilities.getUuid();
+  user.UserID = user.UserID || user.StudentID || user.Username || user.Email || makeId_('USER');
+  user.StudentIDMasked = user.StudentIDMasked || maskStudentId_(user.StudentID || user.UserID);
+  user.Avatar = user.Avatar || avatarText_(user.DisplayName || user.Username || user.UserID);
+  user.PasswordSalt = salt;
+  user.PasswordHash = hashPassword_(password, salt);
+  user.ConsentStatus = user.ConsentStatus || 'ยินยอม';
+  user.Status = 'active';
+  user.CreatedAt = now;
+  user.LastLoginAt = now;
+  appendObject_('AppUsers', APP_USER_HEADERS, user);
+  upsertUserProfileFromAppUser_(user);
+  const token = createUserSession_(user.UserID);
+  return { ok: true, token, user: publicAppUser_(user) };
+}
+
+function loginUser_(req) {
+  const login = String(req.login || '').trim();
+  const password = String(req.password || '');
+  if (!login || !password) return { ok: false, message: 'กรุณากรอก Username และ Password' };
+  const match = findUserByLogin_(login);
+  if (!match) return { ok: false, message: 'ไม่พบบัญชีผู้ใช้' };
+  const user = match.user;
+  if (String(user.Status || 'active') !== 'active') return { ok: false, message: 'บัญชีนี้ถูกปิดใช้งาน กรุณาติดต่อผู้ดูแลระบบ' };
+  if (hashPassword_(password, user.PasswordSalt) !== user.PasswordHash) return { ok: false, message: 'รหัสผ่านไม่ถูกต้อง' };
+  const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName('AppUsers');
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  const now = new Date();
+  setCellByHeader_(sheet, headers, match.rowNumber, 'LastLoginAt', now);
+  user.LastLoginAt = now;
+  upsertUserProfileFromAppUser_(user);
+  const token = createUserSession_(user.UserID);
+  return { ok: true, token, user: publicAppUser_(user) };
+}
+
+function validateSession_(req) {
+  const token = String(req.token || '').trim();
+  if (!token) return { ok: false, message: 'Session ไม่ถูกต้อง' };
+  const sheet = ensureSheet_('UserSessions', USER_SESSION_HEADERS);
+  const values = sheet.getDataRange().getValues();
+  const headers = values.shift();
+  const tokenIndex = headers.indexOf('Token');
+  const rowIndex = values.findIndex((row) => String(row[tokenIndex]) === token);
+  if (rowIndex < 0) return { ok: false, message: 'Session หมดอายุหรือไม่ถูกต้อง' };
+  const rowNumber = rowIndex + 2;
+  const session = {};
+  headers.forEach((header, index) => session[header] = values[rowIndex][index]);
+  if (String(session.Status || '') !== 'active') return { ok: false, message: 'Session ถูกปิดใช้งานแล้ว' };
+  if (session.ExpiresAt && new Date(session.ExpiresAt).getTime() < Date.now()) {
+    setCellByHeader_(sheet, headers, rowNumber, 'Status', 'expired');
+    return { ok: false, message: 'Session หมดอายุ กรุณา Login ใหม่' };
+  }
+  setCellByHeader_(sheet, headers, rowNumber, 'LastSeenAt', new Date());
+  const match = findUserById_(session.UserID);
+  if (!match) return { ok: false, message: 'ไม่พบข้อมูลผู้ใช้ของ Session นี้' };
+  return { ok: true, token, user: publicAppUser_(match.user) };
+}
+
+function logoutUser_(req) {
+  const token = String(req.token || '').trim();
+  if (!token) return { ok: true };
+  const sheet = ensureSheet_('UserSessions', USER_SESSION_HEADERS);
+  const values = sheet.getDataRange().getValues();
+  const headers = values.shift();
+  const tokenIndex = headers.indexOf('Token');
+  const rowIndex = values.findIndex((row) => String(row[tokenIndex]) === token);
+  if (rowIndex >= 0) setCellByHeader_(sheet, headers, rowIndex + 2, 'Status', 'revoked');
+  return { ok: true };
+}
+
+function normalizeAppUser_(input) {
+  const user = {};
+  APP_USER_HEADERS.forEach((key) => user[key] = input[key] || '');
+  user.Username = String(input.Username || input.username || '').trim();
+  user.Email = String(input.Email || input.email || '').trim();
+  user.Role = String(input.Role || input.role || 'student').trim() || 'student';
+  user.FirstName = String(input.FirstName || input.firstName || '').trim();
+  user.LastName = String(input.LastName || input.lastName || '').trim();
+  user.DisplayName = String(input.DisplayName || input.displayName || `${user.FirstName} ${user.LastName}`.trim() || user.Username || user.Email || 'Green User').trim();
+  user.ClassName = String(input.ClassName || input.className || '').trim();
+  user.StudentID = String(input.StudentID || input.studentId || '').trim();
+  user.UserID = String(input.UserID || input.userId || user.StudentID || user.Username || user.Email || '').trim();
+  user.StudentIDMasked = String(input.StudentIDMasked || input.studentIDMasked || maskStudentId_(user.StudentID || user.UserID)).trim();
+  user.HouseholdName = String(input.HouseholdName || input.householdName || '').trim();
+  user.Avatar = String(input.Avatar || input.avatar || avatarText_(user.DisplayName)).trim();
+  user.ConsentStatus = String(input.ConsentStatus || input.consentStatus || '').trim();
+  return user;
+}
+
+function publicAppUser_(user) {
+  const clean = normalizeAppUser_(user || {});
+  clean.CreatedAt = user.CreatedAt || '';
+  clean.LastLoginAt = user.LastLoginAt || '';
+  clean.Status = user.Status || 'active';
+  delete clean.PasswordSalt;
+  delete clean.PasswordHash;
+  return clean;
+}
+
+function findUserMatch_(user) {
+  const keys = [user.Username, user.Email, user.UserID, user.StudentID].map(authKey_).filter(Boolean);
+  if (!keys.length) return null;
+  const rows = readSheet_('AppUsers');
+  const found = rows.find((row) => [row.Username, row.Email, row.UserID, row.StudentID].some((value) => keys.indexOf(authKey_(value)) >= 0));
+  return found ? { user: found, rowNumber: found._rowNumber } : null;
+}
+
+function findUserByLogin_(login) {
+  const key = authKey_(login);
+  if (!key) return null;
+  const rows = readSheet_('AppUsers');
+  const found = rows.find((row) => [row.Username, row.Email, row.UserID, row.StudentID].some((value) => authKey_(value) === key));
+  return found ? { user: found, rowNumber: found._rowNumber } : null;
+}
+
+function findUserById_(userId) {
+  const key = authKey_(userId);
+  if (!key) return null;
+  const rows = readSheet_('AppUsers');
+  const found = rows.find((row) => authKey_(row.UserID) === key);
+  return found ? { user: found, rowNumber: found._rowNumber } : null;
+}
+
+function authKey_(value) {
+  return String(value || '').trim().toLowerCase();
+}
+
+function hashPassword_(password, salt) {
+  const raw = `${salt}:${password}:green-passport`;
+  const bytes = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, raw, Utilities.Charset.UTF_8);
+  return bytes.map((byte) => {
+    const value = byte < 0 ? byte + 256 : byte;
+    return value.toString(16).padStart(2, '0');
+  }).join('');
+}
+
+function createUserSession_(userId) {
+  const now = new Date();
+  const expires = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+  const token = `${Utilities.getUuid()}-${Utilities.getUuid()}`;
+  appendObject_('UserSessions', USER_SESSION_HEADERS, {
+    Token: token,
+    UserID: userId,
+    CreatedAt: now,
+    LastSeenAt: now,
+    ExpiresAt: expires,
+    Status: 'active',
+  });
+  return token;
+}
+
+function upsertUserProfileFromAppUser_(user) {
+  const now = new Date();
+  const base = {
+    UserID: user.UserID,
+    DisplayName: user.DisplayName,
+    FirstName: user.FirstName,
+    LastName: user.LastName,
+    ClassName: user.ClassName,
+    StudentIDMasked: user.StudentIDMasked || maskStudentId_(user.StudentID || user.UserID),
+    Avatar: user.Avatar || avatarText_(user.DisplayName),
+    LastActiveAt: now,
+    ConsentStatus: user.ConsentStatus || 'ยินยอม',
+  };
+  const existing = setObjectFieldsById_('UserProfiles', 'UserID', user.UserID, base);
+  if (!existing) {
+    appendObject_('UserProfiles', USER_PROFILE_HEADERS, Object.assign({
+      CurrentLevel: 'Green Starter',
+      CurrentEXP: 0,
+      TotalScore: 0,
+      TotalStars: 0,
+      TotalBadges: 0,
+      TotalPosts: 0,
+      TotalComments: 0,
+      TotalSubmissions: 0,
+      TotalCO2e: 0,
+      HouseholdStatus: user.HouseholdName || '',
+    }, base));
+  }
+}
+
+function maskStudentId_(value) {
+  const text = String(value || '').trim();
+  if (!text) return '';
+  if (text.length <= 4) return text;
+  return text.replace(/(.{2}).+(.{2})/, '$1***$2');
+}
+
+function avatarText_(name) {
+  const text = String(name || 'GP').trim();
+  const compact = text.replace(/\s+/g, '');
+  return compact.slice(0, 2).toUpperCase() || 'GP';
 }
 
 function appendWasteRecord_(input) {
@@ -609,6 +818,8 @@ function sheetHeadersByName_(sheetName) {
     UserProfiles: USER_PROFILE_HEADERS,
     LevelRules: LEVEL_RULE_HEADERS,
     EXPLogs: EXP_LOG_HEADERS,
+    AppUsers: APP_USER_HEADERS,
+    UserSessions: USER_SESSION_HEADERS,
   };
   return map[sheetName] || [];
 }
