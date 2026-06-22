@@ -535,12 +535,14 @@
       }
       const user = currentUserIdentity();
       const chipHtml = `
-        <div class="avatar">${escapeHtml(avatarText(user.DisplayName))}</div>
-        <div>
-          <strong>${escapeHtml(user.DisplayName)}</strong>
-          <span>${escapeHtml(user.ClassName || user.Role || 'Green Passport')}</span>
-        </div>
-        <button type="button" onclick="logout()">Logout</button>`;
+        <button type="button" class="auth-user-profile-trigger" onclick="showPage('profile')" title="เปิดโปรไฟล์">
+          <div class="avatar">${escapeHtml(avatarText(user.DisplayName))}</div>
+          <span class="auth-user-profile-text">
+            <strong>${escapeHtml(user.DisplayName)}</strong>
+            <span>${escapeHtml(user.ClassName || user.Role || 'Green Passport')}</span>
+          </span>
+        </button>
+        <button type="button" class="auth-user-logout" onclick="logout()">Logout</button>`;
       chips.forEach((chip) => {
         chip.hidden = false;
         chip.innerHTML = chipHtml;
