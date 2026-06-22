@@ -6,7 +6,7 @@
         ".write": "auth != null",
         ".indexOn": ["timestamp"],
         "$messageId": {
-          ".validate": "newData.hasChildren(['MessageText','UserID','DisplayName','Timestamp']) && newData.child('MessageText').isString() && newData.child('MessageText').val().length <= 500 && newData.child('UserID').val() === auth.uid"
+          ".validate": "newData.hasChildren(['MessageText','UserID','DisplayName','Timestamp']) && newData.child('MessageText').isString() && newData.child('MessageText').val().length <= 500"
         }
       }
     },

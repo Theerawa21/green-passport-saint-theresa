@@ -2959,6 +2959,29 @@
       firebaseAuth.onAuthStateChanged(async (user) => {
         if (user) {
           console.log("Firebase Auth synced: User authenticated");
+          try {
+            if (firebaseFs) {
+              const profileDoc = await firebaseFs.collection('userProfiles').doc(user.uid).get();
+              if (profileDoc.exists) {
+                const profile = profileDoc.data();
+                state.currentUser = Object.assign({}, state.currentUser, {
+                  UserID: user.uid,
+                  Username: profile.Username || (state.currentUser && state.currentUser.Username) || '',
+                  Email: user.email,
+                  Role: profile.Role || (state.currentUser && state.currentUser.Role) || 'student',
+                  FirstName: profile.FirstName || (state.currentUser && state.currentUser.FirstName) || '',
+                  LastName: profile.LastName || (state.currentUser && state.currentUser.LastName) || '',
+                  DisplayName: profile.DisplayName || (state.currentUser && state.currentUser.DisplayName) || '',
+                  ClassName: profile.ClassName || (state.currentUser && state.currentUser.ClassName) || '',
+                  StudentID: profile.StudentID || (state.currentUser && state.currentUser.StudentID) || '',
+                  HouseholdName: profile.HouseholdStatus || (state.currentUser && state.currentUser.HouseholdName) || ''
+                });
+                applyCurrentUserToState();
+              }
+            }
+          } catch (e) {
+            console.error("Error restoring user profile from Firestore:", e);
+          }
           await fetchUserProfilesFromFirestore();
           if (state.active === 'chat' && firebaseDb) {
             subscribeToFirebaseChat(state.chatRoom || 'CR-MISSION-01');
