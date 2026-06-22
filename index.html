@@ -320,6 +320,453 @@
     .menu-card strong { font-family: var(--font-display); font-size: 18px; font-weight: 500; }
     .menu-card small { color: var(--muted); font-size: 14px; line-height: 1.45; }
     .menu-card:hover { border-color: var(--green-700); box-shadow: var(--shadow); }
+    .avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--green-100), #dbeafe);
+      color: var(--green-900);
+      font-weight: 800;
+      border: 2px solid #fff;
+      box-shadow: 0 8px 18px rgba(15, 122, 79, .12);
+    }
+    .post-card {
+      display: grid;
+      gap: 12px;
+    }
+    .post-image {
+      min-height: 140px;
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, #ecfdf5, #eff6ff);
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+    .post-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .tag-row { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag {
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: #ecfdf5;
+      color: var(--green-800);
+      border: 1px solid rgba(31,157,98,.22);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .progress-track {
+      height: 12px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--green-700), var(--blue-700));
+    }
+    .chat-layout {
+      display: grid;
+      grid-template-columns: 320px minmax(0, 1fr);
+      gap: 0;
+      min-height: 680px;
+      border: 1px solid rgba(15, 122, 79, .16);
+      border-radius: 18px;
+      overflow: hidden;
+      background: #f7faf8;
+      box-shadow: 0 18px 45px rgba(15, 47, 36, .08);
+    }
+    .chat-sidebar {
+      background: #fff;
+      border-right: 1px solid var(--line);
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      min-height: 680px;
+    }
+    .chat-sidebar-head {
+      padding: 16px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(135deg, #f0fdf4, #eff6ff);
+    }
+    .chat-sidebar-head h3 { color: var(--green-900); }
+    .chat-sidebar-head p { color: var(--muted); }
+    .chat-room-list {
+      overflow: auto;
+      padding: 8px;
+    }
+    .chat-room-row {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 48px minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      padding: 11px 10px;
+      border: 0;
+      border-radius: 12px;
+      background: transparent;
+      color: var(--ink);
+      text-align: left;
+      cursor: pointer;
+    }
+    .chat-room-row:hover,
+    .chat-room-row.active { background: #ecfdf5; }
+    .room-avatar,
+    .chat-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      color: #fff;
+      background: linear-gradient(135deg, #16a34a, #2563eb);
+      box-shadow: 0 8px 18px rgba(22, 163, 74, .18);
+      flex: 0 0 auto;
+    }
+    .room-avatar.teacher,
+    .chat-avatar.teacher { background: linear-gradient(135deg, #f59e0b, #ef4444); }
+    .room-avatar.mission,
+    .chat-avatar.mission { background: linear-gradient(135deg, #14b8a6, #0f766e); }
+    .room-title,
+    .chat-line-title {
+      display: block;
+      font-weight: 900;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .room-preview,
+    .room-meta,
+    .chat-line-sub {
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .room-time { color: var(--muted); font-size: 11px; }
+    .room-unread {
+      display: inline-grid;
+      place-items: center;
+      min-width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      background: #22c55e;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 900;
+      margin-top: 6px;
+    }
+    .chat-shell {
+      min-width: 0;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      background: #eef7f0;
+      min-height: 680px;
+    }
+    .chat-header {
+      min-height: 76px;
+      padding: 12px 16px;
+      background: rgba(255,255,255,.96);
+      border-bottom: 1px solid rgba(15, 122, 79, .12);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      backdrop-filter: blur(12px);
+    }
+    .chat-header-main {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+    .chat-icon-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 1px solid rgba(15, 122, 79, .12);
+      background: #fff;
+      color: var(--green-800);
+      display: inline-grid;
+      place-items: center;
+      cursor: pointer;
+      font-weight: 900;
+    }
+    .chat-icon-btn:hover { background: #ecfdf5; }
+    .chat-toolbar {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .chat-window {
+      padding: 18px 16px 10px;
+      overflow: auto;
+      background:
+        radial-gradient(circle at 20% 12%, rgba(34, 197, 94, .08), transparent 26%),
+        radial-gradient(circle at 85% 0%, rgba(37, 99, 235, .07), transparent 24%),
+        #eef7f0;
+    }
+    .chat-date-divider {
+      display: flex;
+      justify-content: center;
+      margin: 10px 0 18px;
+    }
+    .chat-date-divider span,
+    .chat-system {
+      color: #386150;
+      background: rgba(255,255,255,.78);
+      border: 1px solid rgba(15, 122, 79, .08);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 800;
+      box-shadow: 0 8px 22px rgba(15, 47, 36, .06);
+    }
+    .chat-system {
+      width: fit-content;
+      max-width: min(92%, 520px);
+      margin: 12px auto;
+      border-radius: 14px;
+      text-align: center;
+      line-height: 1.45;
+    }
+    .chat-message {
+      display: flex;
+      gap: 8px;
+      margin: 3px 0 10px;
+      align-items: flex-end;
+    }
+    .chat-message.own {
+      justify-content: flex-end;
+    }
+    .chat-message.own .chat-avatar { display: none; }
+    .chat-message.compact {
+      margin-top: -5px;
+    }
+    .chat-message.compact .chat-avatar,
+    .chat-message.compact .chat-sender { visibility: hidden; height: 0; margin: 0; }
+    .chat-stack {
+      max-width: min(72%, 620px);
+      display: grid;
+      gap: 3px;
+    }
+    .chat-message.own .chat-stack { justify-items: end; }
+    .chat-sender {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #36584c;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 0 6px;
+    }
+    .chat-bubble {
+      border: 1px solid rgba(15, 122, 79, .08);
+      background: #fff;
+      border-radius: 18px 18px 18px 4px;
+      padding: 10px 13px;
+      line-height: 1.5;
+      box-shadow: 0 8px 24px rgba(15, 47, 36, .07);
+      word-break: break-word;
+      position: relative;
+    }
+    .chat-message.own .chat-bubble {
+      background: #c9f7c5;
+      border-color: rgba(34, 197, 94, .24);
+      border-radius: 18px 18px 4px 18px;
+    }
+    .chat-message.teacher .chat-bubble {
+      background: #fff7d6;
+      border-color: rgba(245, 158, 11, .28);
+    }
+    .chat-message.sticker .chat-bubble {
+      font-size: 1.2rem;
+      font-weight: 900;
+      background: #fff;
+    }
+    .chat-bubble.reported { border-color: #f59e0b; background: #fffbeb; }
+    .chat-image {
+      display: block;
+      width: min(260px, 100%);
+      max-height: 240px;
+      object-fit: cover;
+      border-radius: 14px;
+      margin-top: 8px;
+      cursor: zoom-in;
+    }
+    .chat-time {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: #668174;
+      font-size: 11px;
+      padding: 0 6px;
+    }
+    .chat-actions,
+    .chat-reactions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .chat-actions {
+      opacity: .42;
+      transition: opacity .16s ease;
+    }
+    .chat-message:hover .chat-actions,
+    .chat-message:focus-within .chat-actions { opacity: 1; }
+    .chat-action {
+      border: 0;
+      border-radius: 999px;
+      background: rgba(255,255,255,.78);
+      color: var(--green-800);
+      padding: 3px 8px;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .chat-reaction {
+      border: 1px solid rgba(15, 122, 79, .12);
+      border-radius: 999px;
+      background: rgba(255,255,255,.88);
+      padding: 2px 7px;
+      font-size: 12px;
+      line-height: 1.2;
+      cursor: pointer;
+    }
+    .teacher-badge {
+      background: #fef3c7;
+      color: #92400e;
+      border-radius: 999px;
+      padding: 2px 7px;
+      font-size: 11px;
+      font-weight: 900;
+    }
+    .chat-quote {
+      border-left: 3px solid #22c55e;
+      background: rgba(255,255,255,.6);
+      padding: 6px 8px;
+      border-radius: 8px;
+      color: #416456;
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    .chat-composer {
+      background: #fff;
+      border-top: 1px solid rgba(15, 122, 79, .12);
+      padding: 10px 12px;
+      display: grid;
+      gap: 8px;
+    }
+    .chat-compose-row {
+      display: grid;
+      grid-template-columns: auto auto minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: end;
+    }
+    .chat-compose-row textarea {
+      min-height: 44px;
+      max-height: 130px;
+      resize: vertical;
+      border-radius: 22px;
+      padding: 11px 14px;
+    }
+    .chat-send-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 0;
+      background: #22c55e;
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 10px 22px rgba(34,197,94,.26);
+    }
+    .chat-identity-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .chat-identity-row input {
+      min-height: 36px;
+      padding: 8px 10px;
+      font-size: 13px;
+    }
+    .chat-emoji-tray,
+    .chat-sticker-tray,
+    .chat-reply-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      padding: 6px 8px;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+    }
+    .chat-emoji-tray[hidden],
+    .chat-sticker-tray[hidden],
+    .chat-reply-bar[hidden] { display: none; }
+    .chat-sticker {
+      border: 1px solid rgba(15, 122, 79, .12);
+      border-radius: 999px;
+      background: #fff;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-weight: 800;
+    }
+    .chat-room-safe {
+      padding: 12px 14px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .rules-box {
+      border: 1px solid rgba(37, 99, 235, .25);
+      background: #eff6ff;
+      color: #1e3a8a;
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+    .room-button {
+      width: 100%;
+      justify-content: flex-start;
+      text-align: left;
+      margin-bottom: 8px;
+    }
+    .room-button.active {
+      background: #0f766e;
+      color: #fff;
+      border-color: #0f766e;
+    }
+    .comment-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .comment-item {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: .94rem;
+    }
+    .profile-banner {
+      background: linear-gradient(135deg, #ecfdf5, #eff6ff);
+      border: 1px solid #d1fae5;
+      border-radius: 8px;
+      padding: 18px;
+    }
+    .profile-picker { max-width: 360px; }
     label { display: grid; gap: 6px; color: var(--green-900); font-weight: 600; line-height: 1.35; }
     input, select, textarea {
       width: 100%;
@@ -628,6 +1075,15 @@
     .mode-card {
       border-top: 5px solid var(--green-700);
       min-height: 132px;
+      text-align: left;
+      width: 100%;
+      cursor: pointer;
+      font: inherit;
+      color: inherit;
+    }
+    .mode-card.active {
+      outline: 3px solid rgba(31, 157, 98, .22);
+      border-color: var(--green-700);
     }
     .mode-card.parent { border-top-color: var(--blue-700); }
     .mode-card.teacher { border-top-color: var(--yellow-400); }
@@ -1167,8 +1623,40 @@
       button, input, select, textarea { font-size: 17px; }
       .hero h2 { font-size: 34px; }
       .page-title h2 { font-size: 30px; }
-      .grid.two, .grid.three, .grid.four, .grid.record-layout, .quick-menu, .field-grid, .activity-grid, .mission-map, .score-strip, .game-hero, .knowledge-grid, .level-row, .mode-strip, .impact-grid, .buddy-advice-grid, .timeline, .evidence-grid, .download-grid, .mission-grid {
+      .grid.two, .grid.three, .grid.four, .grid.record-layout, .quick-menu, .field-grid, .activity-grid, .mission-map, .score-strip, .game-hero, .knowledge-grid, .level-row, .mode-strip, .impact-grid, .buddy-advice-grid, .timeline, .evidence-grid, .download-grid, .mission-grid, .chat-layout {
         grid-template-columns: 1fr;
+      }
+      .chat-layout,
+      .chat-sidebar,
+      .chat-shell { min-height: auto; }
+      .chat-layout { border-radius: 14px; }
+      body.chat-active .mobile-nav { display: none; }
+      .chat-sidebar {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+        max-height: 310px;
+      }
+      .chat-window {
+        min-height: 430px;
+        max-height: 62vh;
+      }
+      .chat-stack { max-width: 86%; }
+      .chat-header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+      .chat-toolbar { justify-content: flex-start; }
+      .chat-actions { opacity: 1; }
+      .chat-identity-row,
+      .chat-compose-row {
+        grid-template-columns: 1fr;
+      }
+      .chat-compose-row {
+        align-items: stretch;
+      }
+      .chat-send-btn {
+        width: 100%;
+        border-radius: 999px;
       }
       .waste-icon-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .green-buddy { grid-template-columns: 72px minmax(0, 1fr); }
@@ -1221,11 +1709,16 @@
       <section id="guide" class="section"></section>
       <section id="game" class="section"></section>
       <section id="leaderboard" class="section"></section>
+      <section id="community" class="section"></section>
+      <section id="friends" class="section"></section>
+      <section id="chat" class="section"></section>
+      <section id="profile" class="section"></section>
       <section id="impact" class="section"></section>
       <section id="dashboard" class="section"></section>
       <section id="compare" class="section"></section>
       <section id="formula" class="section"></section>
       <section id="missions" class="section"></section>
+      <section id="reminders" class="section"></section>
       <section id="studentRoles" class="section"></section>
       <section id="starterKit" class="section"></section>
       <section id="certificate" class="section"></section>
@@ -1251,16 +1744,30 @@
       ['guide', 'คู่มือแยกขยะ', 'book'],
       ['game', 'Trash Hero Academy', 'game'],
       ['leaderboard', 'Leaderboard', 'rank'],
+      ['community', 'ชุมชน Green Passport', 'community'],
+      ['friends', 'เพื่อน Green Passport', 'friends'],
+      ['chat', 'Green Chat', 'chat'],
+      ['profile', 'โปรไฟล์ของฉัน', 'profile'],
       ['impact', 'ผลกระทบของเรา', 'impact'],
       ['dashboard', 'Dashboard', 'chart'],
       ['compare', 'เปรียบเทียบก่อน-หลัง', 'compare'],
       ['formula', 'สูตรคำนวณคาร์บอน', 'formula'],
       ['missions', 'ภารกิจรายเดือน', 'mission'],
+      ['reminders', 'แจ้งเตือน', 'bell'],
       ['studentRoles', 'บทบาทนักเรียนผู้พัฒนา', 'student'],
       ['starterKit', 'Starter Kit', 'kit'],
       ['certificate', 'เกียรติบัตร', 'award'],
       ['admin', 'Admin', 'lock'],
     ];
+    const adminOnlyPageIds = new Set(['dashboard','compare','formula','missions','reminders','studentRoles','starterKit','certificate']);
+
+    function mainNavPages() {
+      return pages.filter(([id]) => !adminOnlyPageIds.has(id));
+    }
+
+    function adminToolPages() {
+      return pages.filter(([id]) => adminOnlyPageIds.has(id));
+    }
 
     const icons = {
       home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>',
@@ -1268,11 +1775,16 @@
       book: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z"/></svg>',
       game: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="10" rx="3"/><path d="M8 12v2M7 13h2M15 13h.01M18 13h.01"/></svg>',
       rank: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v4a5 5 0 0 1-10 0Z"/><path d="M5 5H3v2a4 4 0 0 0 4 4"/><path d="M19 5h2v2a4 4 0 0 1-4 4"/></svg>',
+      community: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 8h10"/><path d="M7 12h6"/><path d="M21 12c0 4.4-4 8-9 8a10 10 0 0 1-4-.8L3 20l1.4-3.5A7.3 7.3 0 0 1 3 12c0-4.4 4-8 9-8s9 3.6 9 8Z"/></svg>',
+      friends: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+      chat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/><path d="M8 9h8M8 13h5"/></svg>',
+      profile: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>',
       impact: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5"/><path d="M4 19h16"/><path d="m7 15 4-4 3 3 5-7"/><path d="M17 7h2v2"/></svg>',
       chart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15v2"/><path d="M12 10v7"/><path d="M17 6v11"/></svg>',
       compare: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h14"/><path d="m14 3 4 4-4 4"/><path d="M20 17H6"/><path d="m10 13-4 4 4 4"/></svg>',
       formula: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19h16"/><path d="m5 5 6 7-6 7"/><path d="M13 12h6"/></svg>',
       mission: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-12"/><path d="M5 6h8l-2 4h8l-3 5H8z"/></svg>',
+      bell: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 7 3 9H3c0-2 3-2 3-9"/><path d="M10 21h4"/></svg>',
       student: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></svg>',
       kit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16v13H4z"/><path d="M8 7V5h8v2"/><path d="M8 13h8"/><path d="M12 9v8"/></svg>',
       award: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="5"/><path d="M8.5 12.5 7 22l5-3 5 3-1.5-9.5"/></svg>',
@@ -1509,11 +2021,15 @@
     };
 
     const levelCatalog = [
-      { min: 0, name: 'Beginner Hero', emoji: '🌱', text: 'ต้นกล้าเล็ก เริ่มรักษ์โลก' },
-      { min: 300, name: 'Green Learner', emoji: '🍃', text: 'ต้นไม้กำลังโต รู้จักแยกขยะ' },
-      { min: 600, name: 'Eco Fighter', emoji: '♻️', text: 'ฮีโร่ถือถังขยะ ช่วยแยกถูกทาง' },
-      { min: 900, name: 'Carbon Saver', emoji: '🌍', text: 'ฮีโร่ลดคาร์บอนจากบ้านสู่โลก' },
-      { min: 1200, name: 'Zero Waste Champion', emoji: '🏆', text: 'ฮีโร่พิทักษ์โลกพร้อมเหรียญทอง' },
+      { id: 'L1', min: 0, max: 99, name: 'Green Starter', emoji: '🌱', text: 'เริ่มต้นใช้งานระบบและบันทึกข้อมูลครั้งแรก', color: '#22c55e' },
+      { id: 'L2', min: 100, max: 249, name: 'Waste Sorter', emoji: '♻️', text: 'แยกขยะได้ถูกต้องและส่งข้อมูลต่อเนื่อง', color: '#16a34a' },
+      { id: 'L3', min: 250, max: 499, name: 'Eco Learner', emoji: '🍃', text: 'เรียนรู้ผ่านคู่มือและผ่านเกมพื้นฐาน', color: '#65a30d' },
+      { id: 'L4', min: 500, max: 799, name: 'Home Action Hero', emoji: '🏡', text: 'ทำภารกิจที่บ้านและแนบหลักฐานครบ', color: '#0f766e' },
+      { id: 'L5', min: 800, max: 1199, name: 'Carbon Saver', emoji: '🌍', text: 'มียอดลดคาร์บอนสะสมตามเกณฑ์', color: '#2563eb' },
+      { id: 'L6', min: 1200, max: 1699, name: 'Green Buddy Helper', emoji: '💚', text: 'แชร์ประสบการณ์หรือช่วยให้คำแนะนำเพื่อน', color: '#14b8a6' },
+      { id: 'L7', min: 1700, max: 2299, name: 'Zero Waste Leader', emoji: '🏆', text: 'ส่งข้อมูลสม่ำเสมอ ทำภารกิจครบ และเป็นแบบอย่าง', color: '#f59e0b' },
+      { id: 'L8', min: 2300, max: 2999, name: 'Trash Hero Champion', emoji: '⭐', text: 'ผ่านเกมครบทุกด่าน ได้ Badge สำคัญ และมีผลงานโดดเด่น', color: '#f97316' },
+      { id: 'L9', min: 3000, max: Infinity, name: 'School to Home Ambassador', emoji: '👑', text: 'นักเรียนแกนนำที่ช่วยขยายผลจากโรงเรียนสู่บ้านและชุมชน', color: '#7c3aed' },
     ];
 
     const correctFeedback = [
@@ -1620,6 +2136,12 @@
       active: 'home',
       data: queryParams.get('demo') === '1' ? makeMockData() : makeEmptyData(),
       adminPIN: '',
+      userMode: localStorage.getItem('greenPassportUserMode') || 'student',
+      chatRoom: '',
+      profileUserID: '',
+      chatIdentity: JSON.parse(localStorage.getItem('greenPassportChatIdentity') || '{}'),
+      chatReactions: JSON.parse(localStorage.getItem('greenPassportChatReactions') || '{}'),
+      replyToMessageID: '',
       game: createInitialGameState(),
     };
 
@@ -1635,7 +2157,21 @@
       const householdSummary = [];
       const wasteRecords = [];
       const gameScores = [];
-      return { carbonFactors, wasteRecords, gameScores, householdSummary, dashboard: buildDashboard(wasteRecords, householdSummary), settings: { AcademicYear: '2569', OpenMonth: new Date().toISOString().slice(0, 7) } };
+      return {
+        carbonFactors,
+        wasteRecords,
+        gameScores,
+        householdSummary,
+        dashboard: buildDashboard(wasteRecords, householdSummary),
+        communityPosts: [],
+        postComments: [],
+        chatMessages: [],
+        chatRooms: defaultChatRooms(),
+        userProfiles: [],
+        levelRules: defaultLevelRules(),
+        expLogs: [],
+        settings: { AcademicYear: '2569', OpenMonth: new Date().toISOString().slice(0, 7) },
+      };
     }
 
     function makeMockData() {
@@ -1660,7 +2196,50 @@
         { FullName: 'ณัฐธิดา สีเขียว', ClassName: 'ม.1/1', StudentID: 'ST***12', TeamName: 'Green C', TotalScore: 710, TotalStars: 19, PlayerLevel: 'Eco Fighter', Badges: 'Sorter Starter, Zero Waste Family', CertificateStatus: 'ยังไม่ผ่านครบ 9 ด่าน', Stage1Score: 80, Stage2Score: 76, Stage3Score: 82, Stage4Score: 78, Stage5Score: 74, Stage6Score: 80, Stage7Score: 86, Stage8Score: 78, Stage9Score: 76, Stage9Stars: 2 },
       ];
       const householdSummary = summarizeHouseholds(wasteRecords);
-      return { carbonFactors, wasteRecords, gameScores, householdSummary, dashboard: buildDashboard(wasteRecords, householdSummary), settings: { AcademicYear: '2569', OpenMonth: '2026-06' } };
+      const communityData = makeMockCommunityData(householdSummary, gameScores);
+      return { carbonFactors, wasteRecords, gameScores, householdSummary, dashboard: buildDashboard(wasteRecords, householdSummary), ...communityData, settings: { AcademicYear: '2569', OpenMonth: '2026-06' } };
+    }
+
+    function defaultLevelRules() {
+      return levelCatalog.map((level) => ({
+        LevelID: level.id,
+        LevelName: level.name,
+        Emoji: level.emoji,
+        MinEXP: level.min,
+        MaxEXP: Number.isFinite(level.max) ? level.max : '',
+        Description: level.text,
+        UnlockFeature: 'แสดงผลในโปรไฟล์ ชุมชน เพื่อน และแชท',
+        RewardBadge: level.name,
+        DisplayColor: level.color,
+      }));
+    }
+
+    function defaultChatRooms() {
+      const now = new Date().toISOString();
+      return [
+        { ChatRoomID: 'CR-CLASS-01', ChatRoomName: 'ม.1/1 Green Chat', ChatRoomType: 'ห้องเรียน', ClassName: 'ม.1/1', Description: 'พื้นที่พูดคุยเรื่องการลดขยะของห้องเรียน', CreatedBy: 'ระบบ', CreatedAt: now, IsActive: true, TeacherModerator: 'ครูผู้ดูแลโครงการ' },
+        { ChatRoomID: 'CR-MISSION-01', ChatRoomName: 'Zero Waste Challenge', ChatRoomType: 'กิจกรรม', ClassName: '', Description: 'แลกเปลี่ยนไอเดียภารกิจลดขยะรายเดือน', CreatedBy: 'ระบบ', CreatedAt: now, IsActive: true, TeacherModerator: 'ครูผู้ดูแลโครงการ' },
+        { ChatRoomID: 'CR-TEACHER-01', ChatRoomName: 'ถามครู Green Passport', ChatRoomType: 'ถามครู', ClassName: '', Description: 'ถามเรื่องการบันทึก หลักฐาน และการคำนวณคาร์บอน', CreatedBy: 'ระบบ', CreatedAt: now, IsActive: true, TeacherModerator: 'ครูผู้ดูแลโครงการ' },
+      ];
+    }
+
+    function makeMockCommunityData(householdSummary, gameScores) {
+      const profiles = buildProfilesFromData(householdSummary, gameScores, [], [], []);
+      const communityPosts = [
+        { PostID: 'CP-DEMO-01', Timestamp: '2026-06-18 09:00', UserID: 'ST***01', DisplayName: 'ปุณณ์ภัสสร', ClassName: 'ป.5/1', Category: 'ตั้งมุมแยกขยะที่บ้าน 🏡', PostTitle: 'บ้านเราตั้งมุมแยกขยะ 4 ถังแล้ว', PostContent: 'เริ่มจากติดป้ายสีให้ทุกคนในบ้านเห็นง่าย และแยกขวด กระดาษ เศษอาหาร กับขยะทั่วไป', MethodUsed: 'ใช้กล่องเก่าและป้ายสี แยกวางใกล้ครัว', Result: 'ขยะทั่วไปลดลงและรีไซเคิลขายได้มากขึ้น', Problem: 'ช่วงแรกทุกคนยังสับสนเรื่องถัง', Solution: 'ติดตัวอย่างขยะบนป้ายแต่ละถัง', AdviceToFriends: 'เริ่มจากมุมเล็ก ๆ ก่อน แล้วค่อยชวนคนในบ้านช่วยกัน', ImageLinks: '', Tags: 'Zero Waste Home, แยกขยะ, ครอบครัว', Likes: 18, CommentCount: 2, ReviewStatus: 'เผยแพร่แล้ว', TeacherComment: 'เนื้อหาดีมาก สามารถเผยแพร่เป็นตัวอย่างได้', ApprovedBy: 'ครูผู้ดูแลโครงการ', ApprovedAt: '2026-06-18 10:00' },
+        { PostID: 'CP-DEMO-02', Timestamp: '2026-06-19 13:20', UserID: 'ST***08', DisplayName: 'ธนกฤต', ClassName: 'ป.6/2', Category: 'ทำปุ๋ยหมักจากเศษอาหาร 🍃', PostTitle: 'ถังหมักเศษอาหารหลังบ้าน', PostContent: 'บ้านเราลองแยกเศษผักและเปลือกผลไม้ไปทำปุ๋ยหมัก ทำให้ถังขยะเหม็นน้อยลง', MethodUsed: 'ใช้ถังพลาสติกเก่า เจาะรู และโรยใบไม้แห้ง', Result: 'ลดเศษอาหารที่ทิ้งรวมกับขยะทั่วไป', Problem: 'บางวันมีกลิ่น', Solution: 'เติมใบไม้แห้งและปิดฝาให้สนิท', AdviceToFriends: 'อย่าใส่อาหารมันมากเกินไป', ImageLinks: '', Tags: 'ปุ๋ยหมัก, ขยะอินทรีย์', Likes: 12, CommentCount: 1, ReviewStatus: 'เผยแพร่แล้ว', TeacherComment: 'ตัวอย่างดี เหมาะกับภารกิจรายเดือน', ApprovedBy: 'ครูผู้ดูแลโครงการ', ApprovedAt: '2026-06-19 15:00' },
+      ];
+      const postComments = [
+        { CommentID: 'CM-DEMO-01', PostID: 'CP-DEMO-01', Timestamp: '2026-06-18 12:00', UserID: 'ST***12', DisplayName: 'ณัฐธิดา', ClassName: 'ม.1/1', CommentText: 'ไอเดียติดตัวอย่างขยะบนป้ายดีมากค่ะ', LikeCount: 4, ReviewStatus: 'เผยแพร่แล้ว', ReportStatus: '' },
+        { CommentID: 'CM-DEMO-02', PostID: 'CP-DEMO-02', Timestamp: '2026-06-19 16:00', UserID: 'ST***01', DisplayName: 'ปุณณ์ภัสสร', ClassName: 'ป.5/1', CommentText: 'จะลองทำถังหมักตามบ้างนะคะ', LikeCount: 3, ReviewStatus: 'เผยแพร่แล้ว', ReportStatus: '' },
+      ];
+      const chatRooms = defaultChatRooms();
+      const chatMessages = [
+        { MessageID: 'MSG-DEMO-01', ChatRoomID: 'CR-MISSION-01', Timestamp: '2026-06-20 08:00', UserID: 'ST***01', DisplayName: 'ปุณณ์ภัสสร', ClassName: 'ป.5/1', MessageText: 'บ้านเราเริ่มแยกขวดพลาสติกแล้วนะ ♻️', ImageLink: '', MessageType: 'text', IsPinned: false, ReportStatus: '', ModerationStatus: 'ปกติ' },
+        { MessageID: 'MSG-DEMO-02', ChatRoomID: 'CR-MISSION-01', Timestamp: '2026-06-20 08:20', UserID: 'ST***08', DisplayName: 'ธนกฤต', ClassName: 'ป.6/2', MessageText: 'ใครมีวิธีลดเศษอาหารบ้างครับ 🍃', ImageLink: '', MessageType: 'text', IsPinned: false, ReportStatus: '', ModerationStatus: 'ปกติ' },
+        { MessageID: 'MSG-DEMO-03', ChatRoomID: 'CR-TEACHER-01', Timestamp: '2026-06-20 09:00', UserID: 'TEACHER', DisplayName: 'ครูผู้ดูแล', ClassName: 'Admin', MessageText: 'อย่าลืมใช้ถ้อยคำสุภาพและไม่เปิดเผยข้อมูลส่วนตัวนะคะ', ImageLink: '', MessageType: 'announcement', IsPinned: true, ReportStatus: '', ModerationStatus: 'ปักหมุด' },
+      ];
+      return { communityPosts, postComments, chatMessages, chatRooms, userProfiles: profiles, levelRules: defaultLevelRules(), expLogs: [] };
     }
 
     function record(house, student, room, id, month, general, recycle, organic, co2e, status) {
@@ -1702,6 +2281,115 @@
           CertificateStatus: totalCO2e >= 30 ? 'พร้อมออกเกียรติบัตร' : 'รอสะสมผลลัพธ์',
         };
       });
+    }
+
+    function levelInfoByEXP(exp) {
+      const value = Number(exp || 0);
+      return [...levelCatalog].reverse().find((level) => value >= level.min) || levelCatalog[0];
+    }
+
+    function nextLevelInfo(exp) {
+      const value = Number(exp || 0);
+      return levelCatalog.find((level) => value < level.min) || levelCatalog[levelCatalog.length - 1];
+    }
+
+    function progressToNextLevel(exp) {
+      const current = levelInfoByEXP(exp);
+      const next = nextLevelInfo(exp);
+      if (current.name === next.name) return 100;
+      const span = Math.max(1, next.min - current.min);
+      return Math.min(100, Math.max(0, ((Number(exp || 0) - current.min) / span) * 100));
+    }
+
+    function safeDisplayName(name = '') {
+      const clean = String(name || 'ผู้ใช้ Green').trim();
+      if (clean.length <= 8) return clean;
+      return `${clean.slice(0, 1)}.${clean.split(' ').slice(-1)[0] || 'Green'}`;
+    }
+
+    function avatarText(name = '') {
+      return String(name || 'G').trim().slice(0, 2).toUpperCase();
+    }
+
+    function splitTags(value = '') {
+      return String(value || '').split(',').map((x) => x.trim()).filter(Boolean);
+    }
+
+    function buildProfilesFromData(households = [], scores = [], posts = [], comments = [], expLogs = []) {
+      const profiles = {};
+      function ensureProfile(key, base = {}) {
+        const id = key || base.StudentID || base.UserID || base.DisplayName || base.StudentName || base.FullName || 'guest';
+        profiles[id] ||= {
+          UserID: id,
+          DisplayName: safeDisplayName(base.DisplayName || base.StudentName || base.FullName || id),
+          FirstName: '',
+          LastName: '',
+          ClassName: base.ClassName || '',
+          StudentIDMasked: String(base.StudentID || id || '').replace(/(.{2}).+(.{2})/, '$1***$2'),
+          Avatar: avatarText(base.DisplayName || base.StudentName || base.FullName || id),
+          CurrentEXP: 0,
+          TotalScore: 0,
+          TotalStars: 0,
+          TotalBadges: 0,
+          TotalPosts: 0,
+          TotalComments: 0,
+          TotalSubmissions: 0,
+          TotalCO2e: 0,
+          HouseholdStatus: '',
+          LastActiveAt: '',
+          ConsentStatus: 'ยินยอม',
+        };
+        Object.assign(profiles[id], Object.fromEntries(Object.entries(base).filter(([, value]) => value !== '' && value !== undefined)));
+        return profiles[id];
+      }
+      households.forEach((h) => {
+        const profile = ensureProfile(h.StudentName || h.HouseholdName, h);
+        profile.TotalSubmissions = Math.max(Number(profile.TotalSubmissions || 0), Number(h.TotalSubmissions || 0));
+        profile.TotalCO2e = Math.max(Number(profile.TotalCO2e || 0), Number(h.TotalCO2e || 0));
+        profile.HouseholdStatus = h.ZeroWasteHomeStatus || profile.HouseholdStatus;
+        profile.CurrentEXP += Number(h.TotalSubmissions || 0) * 20 + Math.round(Number(h.TotalCO2e || 0));
+      });
+      scores.forEach((s) => {
+        const profile = ensureProfile(s.StudentID || s.FullName, s);
+        const badgeCount = String(s.Badges || '').split(',').filter(Boolean).length;
+        profile.TotalScore = Math.max(Number(profile.TotalScore || 0), Number(s.TotalScore || 0));
+        profile.TotalStars = Math.max(Number(profile.TotalStars || 0), Number(s.TotalStars || 0));
+        profile.TotalBadges = Math.max(Number(profile.TotalBadges || 0), badgeCount);
+        profile.CurrentEXP += Math.round(Number(s.TotalScore || 0) / 3) + badgeCount * 50;
+      });
+      posts.filter((p) => p.ReviewStatus === 'เผยแพร่แล้ว').forEach((p) => {
+        const profile = ensureProfile(p.UserID || p.DisplayName, p);
+        profile.TotalPosts += 1;
+        profile.CurrentEXP += 40 + Number(p.Likes || 0) * 2;
+      });
+      comments.filter((c) => c.ReviewStatus === 'เผยแพร่แล้ว').forEach((c) => {
+        const profile = ensureProfile(c.UserID || c.DisplayName, c);
+        profile.TotalComments += 1;
+        profile.CurrentEXP += 5 + Number(c.LikeCount || 0);
+      });
+      expLogs.forEach((log) => {
+        const profile = ensureProfile(log.UserID || 'guest', log);
+        profile.CurrentEXP += Number(log.EXPAmount || 0);
+      });
+      return Object.values(profiles).map((profile) => {
+        const level = levelInfoByEXP(profile.CurrentEXP);
+        return { ...profile, CurrentLevel: `${level.emoji} ${level.name}`, LevelName: level.name, LevelEmoji: level.emoji, LevelColor: level.color };
+      }).sort((a, b) => Number(b.CurrentEXP || 0) - Number(a.CurrentEXP || 0));
+    }
+
+    function allProfiles() {
+      const generated = buildProfilesFromData(state.data.householdSummary || [], state.data.gameScores || [], state.data.communityPosts || [], state.data.postComments || [], state.data.expLogs || []);
+      const stored = (state.data.userProfiles || []).filter((p) => p.UserID || p.DisplayName);
+      const merged = {};
+      [...generated, ...stored].forEach((profile) => {
+        const id = profile.UserID || profile.DisplayName;
+        merged[id] = { ...(merged[id] || {}), ...profile };
+      });
+      return Object.values(merged).map((profile) => {
+        const exp = Number(profile.CurrentEXP || 0);
+        const level = levelInfoByEXP(exp);
+        return { ...profile, CurrentEXP: exp, CurrentLevel: profile.CurrentLevel || `${level.emoji} ${level.name}`, LevelName: profile.LevelName || level.name, LevelEmoji: profile.LevelEmoji || level.emoji, LevelColor: profile.LevelColor || level.color };
+      }).sort((a, b) => Number(b.CurrentEXP || 0) - Number(a.CurrentEXP || 0));
     }
 
     function buildDashboard(records, households) {
@@ -1779,6 +2467,13 @@
         gameScores,
         householdSummary,
         dashboard: data.dashboard || buildDashboard(wasteRecords, householdSummary),
+        communityPosts: data.communityPosts || state.data.communityPosts || [],
+        postComments: data.postComments || state.data.postComments || [],
+        chatMessages: data.chatMessages || state.data.chatMessages || [],
+        chatRooms: data.chatRooms?.length ? data.chatRooms : state.data.chatRooms || defaultChatRooms(),
+        userProfiles: data.userProfiles || state.data.userProfiles || [],
+        levelRules: data.levelRules?.length ? data.levelRules : state.data.levelRules || defaultLevelRules(),
+        expLogs: data.expLogs || state.data.expLogs || [],
         settings: data.settings || state.data.settings || {},
       };
     }
@@ -1789,6 +2484,7 @@
         'ScrapIronKg','GlassBottleKg','CompostFoodKg','BioExtractKg','FeedAnimalsKg','ReducePlasticBagTimes','CarryBottleTimes','UseLunchBoxTimes',
         'RefuseStrawTimes','CarryClothBagTimes','RepairItemsTimes','DonateItemsTimes','DisposeBatteriesAmount','DisposeBulbsAmount',
         'DisposeExpiredMedicineAmount','TotalCO2e','TotalScore','TotalStars','LatestStageScore','LatestStageStars','EF',
+        'Likes','CommentCount','LikeCount','CurrentEXP','EXPAmount','TotalBadges','TotalPosts','TotalComments','TotalSubmissions',
       ];
       for (let i = 1; i <= 9; i += 1) numericFields.push(`Stage${i}Score`, `Stage${i}Stars`);
       const result = Object.assign({}, row);
@@ -1849,6 +2545,13 @@
       localStorage.setItem(LOCAL_DATA_KEY, JSON.stringify({
         wasteRecords: state.data.wasteRecords,
         gameScores: state.data.gameScores,
+        communityPosts: state.data.communityPosts,
+        postComments: state.data.postComments,
+        chatMessages: state.data.chatMessages,
+        chatRooms: state.data.chatRooms,
+        userProfiles: state.data.userProfiles,
+        levelRules: state.data.levelRules,
+        expLogs: state.data.expLogs,
         settings: state.data.settings,
       }));
     }
@@ -1856,10 +2559,17 @@
     function loadFromLocalStorage() {
       try {
         const cached = JSON.parse(localStorage.getItem(LOCAL_DATA_KEY) || '{}');
-        if (!cached.wasteRecords && !cached.gameScores) return;
+        if (!cached.wasteRecords && !cached.gameScores && !cached.communityPosts && !cached.chatMessages) return;
         hydrateData(buildBootstrapData({
           wasteRecords: cached.wasteRecords || [],
           gameScores: cached.gameScores || [],
+          communityPosts: cached.communityPosts || [],
+          postComments: cached.postComments || [],
+          chatMessages: cached.chatMessages || [],
+          chatRooms: cached.chatRooms || [],
+          userProfiles: cached.userProfiles || [],
+          levelRules: cached.levelRules || [],
+          expLogs: cached.expLogs || [],
           settings: cached.settings || {},
           carbonFactors: state.data.carbonFactors,
         }));
@@ -1911,6 +2621,13 @@
       state.data.carbonFactors = (data.carbonFactors?.length ? data.carbonFactors : state.data.carbonFactors).map(normalizeRow);
       state.data.householdSummary = data.householdSummary || summarizeHouseholds(state.data.wasteRecords);
       state.data.dashboard = data.dashboard || buildDashboard(state.data.wasteRecords, state.data.householdSummary);
+      state.data.communityPosts = (data.communityPosts || state.data.communityPosts || []).map(normalizeRow);
+      state.data.postComments = (data.postComments || state.data.postComments || []).map(normalizeRow);
+      state.data.chatMessages = (data.chatMessages || state.data.chatMessages || []).map(normalizeRow);
+      state.data.chatRooms = (data.chatRooms?.length ? data.chatRooms : state.data.chatRooms?.length ? state.data.chatRooms : defaultChatRooms()).map(normalizeRow);
+      state.data.userProfiles = (data.userProfiles || state.data.userProfiles || []).map(normalizeRow);
+      state.data.levelRules = (data.levelRules?.length ? data.levelRules : state.data.levelRules?.length ? state.data.levelRules : defaultLevelRules()).map(normalizeRow);
+      state.data.expLogs = (data.expLogs || state.data.expLogs || []).map(normalizeRow);
       state.data.carbonFactors?.forEach((factor) => {
         const field = activityFields.find((a) => a[1] === factor.ActivityName || a[0] === factor.ActivityCode)?.[0];
         if (field) factorMap[field] = Number(factor.EF || factorMap[field] || 0);
@@ -1920,8 +2637,9 @@
     function renderNav() {
       const side = document.getElementById('sideNav');
       const mobile = document.getElementById('mobileNav');
-      side.innerHTML = pages.map(([id, label, icon]) => `<button class="nav-btn" data-page="${id}" title="${label}">${icons[icon]}<span>${label}</span></button>`).join('');
-      mobile.innerHTML = pages.slice(0, 5).map(([id, label, icon]) => `<button data-page="${id}" title="${label}">${icons[icon]}<span>${shortLabel(label)}</span></button>`).join('');
+      const navPages = mainNavPages();
+      side.innerHTML = navPages.map(([id, label, icon]) => `<button class="nav-btn" data-page="${id}" title="${label}">${icons[icon]}<span>${label}</span></button>`).join('');
+      mobile.innerHTML = navPages.slice(0, 5).map(([id, label, icon]) => `<button data-page="${id}" title="${label}">${icons[icon]}<span>${shortLabel(label)}</span></button>`).join('');
       document.querySelectorAll('[data-page]').forEach((btn) => btn.addEventListener('click', () => showPage(btn.dataset.page)));
     }
 
@@ -1931,12 +2649,14 @@
 
     function showPage(page) {
       state.active = page;
+      document.body.classList.toggle('chat-active', page === 'chat');
       renderAll();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function renderAll() {
       const current = pages.find(([id]) => id === state.active);
+      document.body.classList.toggle('chat-active', state.active === 'chat');
       document.getElementById('pageTitle').textContent = current ? current[1] : 'Green Passport';
       document.getElementById('globalCarbon').textContent = format(state.data.dashboard.totalCO2e || 0);
       document.querySelectorAll('.section').forEach((s) => s.classList.toggle('active', s.id === state.active));
@@ -1947,11 +2667,16 @@
         guide: renderGuide,
         game: renderGame,
         leaderboard: renderLeaderboard,
+        community: renderCommunity,
+        friends: renderFriends,
+        chat: renderChat,
+        profile: renderProfile,
         impact: renderImpact,
         dashboard: renderDashboard,
         compare: renderCompare,
         formula: renderFormula,
         missions: renderMonthlyMissions,
+        reminders: renderReminders,
         studentRoles: renderStudentRoles,
         starterKit: renderStarterKit,
         certificate: renderCertificate,
@@ -1971,8 +2696,9 @@
               <button class="btn secondary" onclick="showPage('impact')">${icons.impact}ดูผลกระทบของเรา</button>
             </div>
             <div class="mode-strip">
-              ${userModes.map(([key, title, emoji, text]) => `<div class="mode-card ${key === 'parent' ? 'parent' : key === 'teacher' ? 'teacher' : key === 'leader' ? 'leader' : ''}"><h3>${emoji} ${title}</h3><p>${text}</p></div>`).join('')}
+              ${userModes.map(([key, title, emoji, text]) => `<button class="mode-card ${key === state.userMode ? 'active' : ''} ${key === 'parent' ? 'parent' : key === 'teacher' ? 'teacher' : key === 'leader' ? 'leader' : ''}" type="button" onclick="setUserMode('${key}')"><h3>${emoji} ${title}</h3><p>${text}</p></button>`).join('')}
             </div>
+            <div class="notice">โหมดปัจจุบัน: ${currentUserModeLabel()} | เลือกบทบาทเพื่อดูเมนูแนะนำที่เหมาะกับผู้ใช้งานแต่ละกลุ่ม</div>
           </div>
           <div class="hero-visual">
             <span><img src="data:image/webp;base64,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" alt="Green Passport St. Theresa Zero Waste"></span>
@@ -1980,7 +2706,7 @@
           </div>
         </div>
         <div class="quick-menu">
-          ${pages.filter(([id]) => !['home','certificate','admin'].includes(id)).slice(0, 10).map(([id, label, icon]) => `
+          ${mainNavPages().filter(([id]) => !['home','admin'].includes(id)).map(([id, label, icon]) => `
             <button class="menu-card" onclick="showPage('${id}')">
               ${icons[icon]}<strong>${label}</strong><small>${menuHelp(id)}</small>
             </button>`).join('')}
@@ -1993,13 +2719,29 @@
         guide: 'อ่านวิธีแยกขยะ 3Rs และขยะอันตราย',
         game: 'เล่นด่านความรู้ สะสมดาวและ Badge',
         leaderboard: 'ดูอันดับครัวเรือนและคะแนนเกม',
+        community: 'แชร์ประสบการณ์ลดขยะและให้กำลังใจเพื่อน',
+        friends: 'เห็นเพื่อนในระบบแบบปลอดภัย',
+        chat: 'พูดคุยเรื่อง Zero Waste ภายใต้กติกาโรงเรียน',
+        profile: 'ดู Level, EXP, Badge และความก้าวหน้าของฉัน',
         impact: 'ผลลัพธ์รวมสำหรับนำเสนอกรรมการ',
         dashboard: 'กราฟและตัวเลขภาพรวมโครงการ',
         missions: 'ภารกิจต่อเนื่องแบบรายเดือน',
+        reminders: 'Green Buddy ช่วยเตือนงานที่ต้องทำ',
         studentRoles: 'บทบาทนักเรียนเจ้าของนวัตกรรม',
         starterKit: 'ชุดขยายผลสำหรับโรงเรียนอื่น',
         admin: 'ตรวจหลักฐาน ส่งออกข้อมูล และตั้งค่า',
       }[id] || 'เปิดใช้งานเมนูนี้';
+    }
+
+    function currentUserModeLabel() {
+      const mode = userModes.find(([key]) => key === state.userMode);
+      return mode ? `${mode[2]} ${mode[1]}` : 'นักเรียน';
+    }
+
+    function setUserMode(mode) {
+      state.userMode = mode;
+      localStorage.setItem('greenPassportUserMode', mode);
+      renderAll();
     }
 
     function renderRecord() {
@@ -2701,6 +3443,22 @@
       return String(value || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
     }
 
+    function escapeHtml(value) {
+      return String(value || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    function jsString(value) {
+      return JSON.stringify(String(value || '')).replace(/</g, '\\u003c');
+    }
+
+    function domId(value) {
+      return String(value || '').replace(/[^a-zA-Z0-9_-]/g, '-');
+    }
+
+    function nowStamp() {
+      return new Date().toLocaleString('th-TH');
+    }
+
     function renderLeaderboard() {
       const topCarbon = [...state.data.householdSummary].sort((a, b) => b.TotalCO2e - a.TotalCO2e);
       const topGame = [...state.data.gameScores].sort((a, b) => b.TotalScore - a.TotalScore);
@@ -2720,6 +3478,807 @@
         </div>
         <p>${r.ClassName || ''} ${type === 'carbon' ? `ส่ง ${r.TotalSubmissions} ครั้ง 🍃` : `${starText(r.TotalStars)} | ${r.PlayerLevel}`}</p>
       </div>`).join('');
+    }
+
+    function communityCategories() {
+      return [
+        'ตั้งมุมแยกขยะที่บ้าน',
+        'ทำปุ๋ยหมักจากเศษอาหาร',
+        'ลดพลาสติกใช้ครั้งเดียว',
+        'ซ่อม ใช้ซ้ำ ส่งต่อ',
+        'ธนาคารขยะและรีไซเคิล',
+        'คำถามหรือไอเดีย Zero Waste',
+      ];
+    }
+
+    function communityRulesAccepted() {
+      return localStorage.getItem('greenPassportCommunityRules') === 'accepted';
+    }
+
+    function acceptCommunityRules() {
+      localStorage.setItem('greenPassportCommunityRules', 'accepted');
+      renderAll();
+    }
+
+    function statusIsPublished(status) {
+      const text = String(status || '');
+      return text.includes('เผยแพร่') || text.includes('ผ่านการตรวจ');
+    }
+
+    function statusIsHidden(status) {
+      const text = String(status || '');
+      return text.includes('ซ่อน') || text.includes('ลบ') || text.includes('ไม่เหมาะสม');
+    }
+
+    function truthy(value) {
+      return value === true || String(value).toLowerCase() === 'true' || String(value).includes('ใช่') || String(value).includes('ปัก');
+    }
+
+    function renderCommunityRules() {
+      const accepted = communityRulesAccepted();
+      return `
+        <div class="rules-box">
+          <strong>กติกาชุมชน Green Passport</strong>
+          <p>ใช้ชื่อเล่นหรือชื่อที่ไม่เปิดเผยข้อมูลส่วนตัว, แชร์เฉพาะประสบการณ์ลดขยะที่สร้างสรรค์, ไม่ส่งเบอร์โทร ที่อยู่ ลิงก์ส่วนตัว หรือข้อความที่ทำให้ผู้อื่นเสียหาย และทุกโพสต์ต้องรอครูตรวจสอบก่อนเผยแพร่</p>
+          <div class="btn-row" style="margin-top:10px">
+            <span class="status ${accepted ? 'ok' : ''}">${accepted ? 'ยอมรับกติกาแล้ว' : 'ยังไม่ได้ยอมรับกติกา'}</span>
+            ${accepted ? '' : `<button class="btn ghost" type="button" onclick="acceptCommunityRules()">ยอมรับกติกา</button>`}
+          </div>
+        </div>`;
+    }
+
+    function publishedPosts() {
+      return (state.data.communityPosts || [])
+        .filter((post) => statusIsPublished(post.ReviewStatus) && !statusIsHidden(post.ReviewStatus))
+        .sort((a, b) => String(b.Timestamp || '').localeCompare(String(a.Timestamp || '')));
+    }
+
+    function renderCommunity() {
+      const posts = publishedPosts();
+      const pending = (state.data.communityPosts || []).filter((post) => String(post.ReviewStatus || '').includes('รอตรวจ')).length;
+      document.getElementById('community').innerHTML = `
+        <div class="grid two">
+          <div class="panel">
+            <h3>ชุมชน Green Passport</h3>
+            <p>พื้นที่แบ่งปันประสบการณ์ลดขยะในบ้าน ให้กำลังใจเพื่อน และเก็บตัวอย่างวิธีทำจริงจากนักเรียน โดยครูตรวจสอบก่อนเผยแพร่เสมอ</p>
+            ${renderCommunityRules()}
+            <form id="communityPostForm" style="margin-top:16px">
+              <div class="field-grid">
+                <label>ชื่อที่แสดงในชุมชน<input name="DisplayName" required maxlength="40" placeholder="เช่น น้องต้นกล้า"></label>
+                <label>ชั้น/ห้อง<input name="ClassName" maxlength="20" placeholder="เช่น ม.1/1"></label>
+                <label>รหัสหรือชื่อย่อผู้ใช้<input name="UserID" maxlength="30" placeholder="เช่น ST***01"></label>
+                <label>หมวดหมู่<select name="Category">${communityCategories().map((item) => `<option>${item}</option>`).join('')}</select></label>
+              </div>
+              <label style="margin-top:12px">หัวข้อโพสต์<input name="PostTitle" required maxlength="90" placeholder="เล่าว่าบ้านหรือห้องเรียนทำอะไร"></label>
+              <label style="margin-top:12px">เรื่องเล่า<textarea name="PostContent" required rows="4" maxlength="1200" placeholder="เล่าปัญหา วิธีทำ และผลที่เกิดขึ้น"></textarea></label>
+              <div class="field-grid" style="margin-top:12px">
+                <label>วิธีที่ใช้<textarea name="MethodUsed" rows="3" maxlength="600"></textarea></label>
+                <label>ผลลัพธ์<textarea name="Result" rows="3" maxlength="600"></textarea></label>
+                <label>ปัญหาที่พบ<textarea name="Problem" rows="3" maxlength="600"></textarea></label>
+                <label>วิธีแก้/คำแนะนำ<textarea name="Solution" rows="3" maxlength="600"></textarea></label>
+              </div>
+              <label style="margin-top:12px">ฝากถึงเพื่อน<textarea name="AdviceToFriends" rows="2" maxlength="400"></textarea></label>
+              <div class="field-grid" style="margin-top:12px">
+                <label>ลิงก์รูปภาพหรือหลักฐาน<input name="ImageLinks" type="url" placeholder="https://..."></label>
+                <label>แท็ก<input name="Tags" placeholder="เช่น แยกขยะ, ปุ๋ยหมัก"></label>
+              </div>
+              <label style="margin-top:12px"><span><input name="CommunityRulesConsent" type="checkbox" required style="width:auto;min-height:auto"> ยอมรับกติกาชุมชนและยืนยันว่าไม่เปิดเผยข้อมูลส่วนตัว</span></label>
+              <div class="btn-row" style="margin-top:14px">
+                <button class="btn" type="submit">ส่งโพสต์ให้ครูตรวจ</button>
+                <button class="btn ghost" type="reset">ล้างข้อมูล</button>
+              </div>
+            </form>
+          </div>
+          <div class="panel">
+            <h3>ภาพรวมชุมชน</h3>
+            <div class="grid two">
+              ${kpi('โพสต์เผยแพร่', posts.length, 'โพสต์')}
+              ${kpi('รอครูตรวจ', pending, 'โพสต์')}
+              ${kpi('หัวใจสีเขียว', sum(posts, 'Likes'), 'ครั้ง')}
+              ${kpi('ความคิดเห็น', (state.data.postComments || []).length, 'รายการ')}
+            </div>
+            <div class="notice" style="margin-top:14px">นักเรียนได้รับ EXP จากการแชร์ประสบการณ์ที่ผ่านการตรวจ การให้กำลังใจ และการมีส่วนร่วมที่สร้างสรรค์</div>
+          </div>
+        </div>
+        <div class="panel" style="margin-top:16px">
+          <h3>ประสบการณ์จากเพื่อน</h3>
+          ${posts.length ? posts.map(postCardHtml).join('') : '<div class="notice">ยังไม่มีโพสต์ที่เผยแพร่แล้ว โพสต์ใหม่จะปรากฏหลังครูตรวจสอบ</div>'}
+        </div>`;
+      document.getElementById('communityPostForm')?.addEventListener('submit', submitCommunityPost);
+    }
+
+    function postCardHtml(post) {
+      const id = String(post.PostID || '');
+      const safe = domId(id);
+      const comments = (state.data.postComments || []).filter((comment) => comment.PostID === id && statusIsPublished(comment.ReviewStatus) && !statusIsHidden(comment.ReviewStatus));
+      const profile = allProfiles().find((item) => item.UserID === post.UserID || item.DisplayName === post.DisplayName) || {};
+      const image = String(post.ImageLinks || '').split(',').map((x) => x.trim()).find(Boolean);
+      const arg = escapeAttr(jsString(id));
+      return `
+        <article class="post-card">
+          <div class="btn-row" style="justify-content:space-between;align-items:flex-start">
+            <div class="btn-row">
+              <div class="avatar">${escapeHtml(avatarText(post.DisplayName))}</div>
+              <div>
+                <strong>${escapeHtml(post.PostTitle)}</strong>
+                <p>${escapeHtml(safeDisplayName(post.DisplayName))} · ${escapeHtml(post.ClassName || '')} · ${escapeHtml(profile.CurrentLevel || '')}</p>
+              </div>
+            </div>
+            <span class="badge earned">${escapeHtml(post.Category || 'Green Story')}</span>
+          </div>
+          ${image ? `<div class="post-image" style="margin-top:12px"><img src="${escapeAttr(image)}" alt="หลักฐานกิจกรรม" onerror="this.parentElement.style.display='none'"></div>` : ''}
+          <p style="margin-top:12px">${escapeHtml(post.PostContent)}</p>
+          <div class="grid two" style="margin-top:12px">
+            ${post.MethodUsed ? `<div class="notice"><strong>วิธีทำ</strong><br>${escapeHtml(post.MethodUsed)}</div>` : ''}
+            ${post.Result ? `<div class="notice"><strong>ผลลัพธ์</strong><br>${escapeHtml(post.Result)}</div>` : ''}
+            ${post.Problem ? `<div class="notice"><strong>ปัญหา</strong><br>${escapeHtml(post.Problem)}</div>` : ''}
+            ${post.Solution ? `<div class="notice"><strong>แก้ไขอย่างไร</strong><br>${escapeHtml(post.Solution)}</div>` : ''}
+          </div>
+          ${post.AdviceToFriends ? `<div style="margin-top:12px">${greenBuddy(escapeHtml(post.AdviceToFriends), true)}</div>` : ''}
+          <div class="tag-row" style="margin-top:12px">${splitTags(post.Tags).map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`).join('')}</div>
+          <div class="btn-row" style="margin-top:12px">
+            <button class="btn ghost" type="button" onclick="encouragePost(${arg})">ให้กำลังใจ (${Number(post.Likes || 0)})</button>
+            <span class="status">${comments.length} ความคิดเห็น</span>
+          </div>
+          <div class="comment-list">
+            ${comments.map((comment) => `<div class="comment-item"><strong>${escapeHtml(safeDisplayName(comment.DisplayName))}</strong> <small>${escapeHtml(comment.ClassName || '')}</small><br>${escapeHtml(comment.CommentText)}</div>`).join('')}
+          </div>
+          <div class="field-grid" style="margin-top:12px">
+            <label>ชื่อผู้แสดงความคิดเห็น<input id="comment-name-${safe}" maxlength="40" placeholder="ชื่อเล่น"></label>
+            <label>ความคิดเห็นสร้างสรรค์<input id="comment-text-${safe}" maxlength="300" placeholder="ให้กำลังใจหรือถามวิธีทำ"></label>
+          </div>
+          <button class="btn secondary" style="margin-top:10px" type="button" onclick="commentOnPost(${arg})">ส่งความคิดเห็นให้ครูตรวจ</button>
+        </article>`;
+    }
+
+    async function submitCommunityPost(event) {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const data = Object.fromEntries(new FormData(form).entries());
+      if (!communityRulesAccepted() && !data.CommunityRulesConsent) {
+        alert('กรุณายอมรับกติกาชุมชนก่อนส่งโพสต์');
+        return;
+      }
+      if (String(data.PostContent || '').trim().length < 20) {
+        alert('กรุณาเล่าประสบการณ์ให้ละเอียดขึ้นเล็กน้อย เพื่อให้เพื่อนนำไปทำตามได้');
+        return;
+      }
+      localStorage.setItem('greenPassportCommunityRules', 'accepted');
+      const post = {
+        PostID: `CP-${Date.now()}`,
+        Timestamp: nowStamp(),
+        UserID: data.UserID || data.DisplayName || 'guest',
+        DisplayName: data.DisplayName,
+        ClassName: data.ClassName,
+        Category: data.Category,
+        PostTitle: data.PostTitle,
+        PostContent: data.PostContent,
+        MethodUsed: data.MethodUsed,
+        Result: data.Result,
+        Problem: data.Problem,
+        Solution: data.Solution,
+        AdviceToFriends: data.AdviceToFriends,
+        ImageLinks: data.ImageLinks,
+        Tags: data.Tags,
+        Likes: 0,
+        CommentCount: 0,
+        ReviewStatus: 'รอตรวจสอบ',
+        TeacherComment: '',
+        ApprovedBy: '',
+        ApprovedAt: '',
+      };
+      try {
+        const result = await sheetApi('appendCommunityPost', { post });
+        state.data.communityPosts.push(normalizeRow(result.post || post));
+        alert('ส่งโพสต์แล้ว รอครูตรวจสอบก่อนเผยแพร่');
+      } catch (error) {
+        state.data.communityPosts.push(normalizeRow(post));
+        queuePendingWrite('appendCommunityPost', { post });
+        alert('บันทึกโพสต์ไว้ในเครื่องแล้ว และจะส่งเข้า Google Sheets เมื่อเชื่อมต่อได้: ' + error.message);
+      }
+      saveToLocalStorage();
+      form.reset();
+      renderCommunity();
+    }
+
+    async function encouragePost(postId) {
+      const post = (state.data.communityPosts || []).find((item) => item.PostID === postId);
+      if (post) post.Likes = Number(post.Likes || 0) + 1;
+      try {
+        const result = await sheetApi('sendCommunityLike', { postId });
+        if (result.post && post) Object.assign(post, normalizeRow(result.post));
+      } catch (error) {
+        queuePendingWrite('sendCommunityLike', { postId });
+      }
+      saveToLocalStorage();
+      renderCommunity();
+    }
+
+    async function commentOnPost(postId) {
+      const safe = domId(postId);
+      const name = document.getElementById(`comment-name-${safe}`)?.value.trim();
+      const text = document.getElementById(`comment-text-${safe}`)?.value.trim();
+      if (!name || !text) {
+        alert('กรุณากรอกชื่อและความคิดเห็น');
+        return;
+      }
+      const comment = {
+        CommentID: `CM-${Date.now()}`,
+        PostID: postId,
+        Timestamp: nowStamp(),
+        UserID: name,
+        DisplayName: name,
+        ClassName: '',
+        CommentText: text,
+        LikeCount: 0,
+        ReviewStatus: 'รอตรวจสอบ',
+        ReportStatus: '',
+      };
+      try {
+        const result = await sheetApi('appendPostComment', { comment });
+        state.data.postComments.push(normalizeRow(result.comment || comment));
+        alert('ส่งความคิดเห็นแล้ว รอครูตรวจสอบก่อนเผยแพร่');
+      } catch (error) {
+        state.data.postComments.push(normalizeRow(comment));
+        queuePendingWrite('appendPostComment', { comment });
+        alert('บันทึกความคิดเห็นไว้ในเครื่องแล้ว และจะส่งเข้า Google Sheets เมื่อเชื่อมต่อได้');
+      }
+      saveToLocalStorage();
+      renderCommunity();
+    }
+
+    function renderFriends() {
+      const profiles = allProfiles();
+      document.getElementById('friends').innerHTML = `
+        <div class="panel">
+          <h3>เพื่อน Green Passport</h3>
+          <p>แสดงรายชื่อแบบปลอดภัย เห็นเฉพาะชื่อที่ย่อแล้ว ระดับ EXP และผลงานด้านสิ่งแวดล้อม เพื่อชวนกันทำภารกิจต่อโดยไม่เปิดเผยข้อมูลส่วนตัว</p>
+          <input class="profile-picker" id="friendSearch" type="search" placeholder="ค้นหาชื่อ ชั้น หรือ Level" oninput="filterFriends()">
+        </div>
+        <div class="grid three" style="margin-top:16px">
+          ${profiles.map(friendCardHtml).join('') || '<div class="notice">ยังไม่มีข้อมูลเพื่อนในระบบ</div>'}
+        </div>`;
+    }
+
+    function friendCardHtml(profile) {
+      const id = profile.UserID || profile.DisplayName;
+      const arg = escapeAttr(jsString(id));
+      const search = [profile.DisplayName, profile.ClassName, profile.LevelName, profile.CurrentLevel].join(' ').toLowerCase();
+      return `
+        <div class="card friend-card" data-search="${escapeAttr(search)}">
+          <div class="btn-row">
+            <div class="avatar">${escapeHtml(profile.Avatar || avatarText(profile.DisplayName))}</div>
+            <div>
+              <strong>${escapeHtml(safeDisplayName(profile.DisplayName))}</strong>
+              <p>${escapeHtml(profile.ClassName || '')} · ${escapeHtml(profile.CurrentLevel || '')}</p>
+            </div>
+          </div>
+          <div class="progress-track" style="margin:12px 0"><div class="progress-fill" style="width:${progressToNextLevel(profile.CurrentEXP)}%"></div></div>
+          <div class="grid two">
+            ${kpi('EXP', Number(profile.CurrentEXP || 0), '')}
+            ${kpi('Badge', Number(profile.TotalBadges || 0), 'ชิ้น')}
+          </div>
+          <p>${escapeHtml(profile.HouseholdStatus || 'กำลังพัฒนาพฤติกรรมลดขยะ')}</p>
+          <div class="btn-row">
+            <button class="btn ghost" onclick="openProfile(${arg})">ดูโปรไฟล์</button>
+            <button class="btn secondary" onclick="openGreenChat()">ชวนคุยใน Green Chat</button>
+          </div>
+        </div>`;
+    }
+
+    function filterFriends() {
+      const query = String(document.getElementById('friendSearch')?.value || '').trim().toLowerCase();
+      document.querySelectorAll('.friend-card').forEach((card) => {
+        card.style.display = !query || card.dataset.search.includes(query) ? '' : 'none';
+      });
+    }
+
+    function openProfile(profileId) {
+      state.profileUserID = profileId;
+      showPage('profile');
+    }
+
+    function openGreenChat() {
+      state.chatRoom = state.chatRoom || (state.data.chatRooms?.[0]?.ChatRoomID || 'CR-MISSION-01');
+      showPage('chat');
+    }
+
+    function ensureChatRoom() {
+      const rooms = (state.data.chatRooms || defaultChatRooms()).filter((room) => String(room.IsActive) !== 'false');
+      if (!rooms.some((room) => room.ChatRoomID === state.chatRoom)) {
+        const activeRoom = rooms.find((room) => latestRoomMessage(room.ChatRoomID)) || rooms.find((room) => room.ChatRoomID === 'CR-MISSION-01') || rooms[0];
+        state.chatRoom = activeRoom?.ChatRoomID || 'CR-MISSION-01';
+      }
+      return rooms;
+    }
+
+    function chatRoomTone(room) {
+      const text = `${room.ChatRoomID || ''} ${room.ChatRoomType || ''} ${room.ChatRoomName || ''}`;
+      if (text.includes('TEACHER') || text.includes('ครู')) return 'teacher';
+      if (text.includes('MISSION') || text.includes('กิจกรรม') || text.includes('Challenge')) return 'mission';
+      return '';
+    }
+
+    function latestRoomMessage(roomId) {
+      return (state.data.chatMessages || [])
+        .filter((message) => message.ChatRoomID === roomId && !statusIsHidden(message.ModerationStatus))
+        .sort((a, b) => String(b.Timestamp || '').localeCompare(String(a.Timestamp || '')))[0] || null;
+    }
+
+    function chatRoomMembers(roomId) {
+      const members = {};
+      (state.data.chatMessages || []).filter((message) => message.ChatRoomID === roomId).forEach((message) => {
+        const key = message.UserID || message.DisplayName;
+        if (!key) return;
+        members[key] = { DisplayName: message.DisplayName, ClassName: message.ClassName, UserID: message.UserID };
+      });
+      return Object.values(members);
+    }
+
+    function chatRoomRowHtml(room, activeRoom) {
+      const latest = latestRoomMessage(room.ChatRoomID);
+      const count = (state.data.chatMessages || []).filter((message) => message.ChatRoomID === room.ChatRoomID && !statusIsHidden(message.ModerationStatus)).length;
+      const tone = chatRoomTone(room);
+      const preview = latest ? `${safeDisplayName(latest.DisplayName)}: ${latest.MessageText || (latest.ImageLink ? 'ส่งรูปภาพ' : 'ข้อความใหม่')}` : room.Description || 'ยังไม่มีข้อความ';
+      return `
+        <button class="chat-room-row ${room.ChatRoomID === activeRoom.ChatRoomID ? 'active' : ''}" type="button" onclick="setChatRoom('${escapeAttr(room.ChatRoomID)}')">
+          <span class="room-avatar ${tone}">${escapeHtml(avatarText(room.ChatRoomName || 'GC'))}</span>
+          <span style="min-width:0">
+            <span class="room-title">${escapeHtml(room.ChatRoomName)}</span>
+            <span class="room-preview">${escapeHtml(preview)}</span>
+            <span class="room-meta">${escapeHtml(room.ChatRoomType || '')} · ${chatRoomMembers(room.ChatRoomID).length || 1} สมาชิก</span>
+          </span>
+          <span style="text-align:right">
+            <span class="room-time">${latest ? escapeHtml(chatTimeLabel(latest.Timestamp)) : ''}</span>
+            ${count ? `<span class="room-unread">${count > 99 ? '99+' : count}</span>` : ''}
+          </span>
+        </button>`;
+    }
+
+    function parseChatDate(value) {
+      const text = String(value || '').trim();
+      if (!text) return null;
+      const direct = new Date(text.replace(' ', 'T'));
+      if (!Number.isNaN(direct.getTime())) return direct;
+      const match = text.match(/(\d{4})-(\d{2})-(\d{2}).*?(\d{1,2}):(\d{2})/);
+      if (match) return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]), Number(match[4]), Number(match[5]));
+      return null;
+    }
+
+    function chatDayKey(value) {
+      const date = parseChatDate(value);
+      if (!date) return String(value || '').slice(0, 10) || 'today';
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    }
+
+    function chatDateLabel(value) {
+      const date = parseChatDate(value);
+      if (!date) return String(value || 'วันนี้').slice(0, 16);
+      const today = new Date();
+      const yesterday = new Date();
+      yesterday.setDate(today.getDate() - 1);
+      const key = chatDayKey(value);
+      const todayKey = chatDayKey(today.toISOString());
+      const yesterdayKey = chatDayKey(yesterday.toISOString());
+      if (key === todayKey) return 'วันนี้';
+      if (key === yesterdayKey) return 'เมื่อวาน';
+      return date.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
+
+    function chatTimeLabel(value) {
+      const date = parseChatDate(value);
+      if (date) return date.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+      const match = String(value || '').match(/\d{1,2}:\d{2}/);
+      return match ? match[0] : '';
+    }
+
+    function isTeacherMessage(message) {
+      const text = `${message.UserID || ''} ${message.ClassName || ''} ${message.DisplayName || ''} ${message.MessageType || ''}`;
+      return text.includes('TEACHER') || text.includes('Admin') || text.includes('ครู') || text.includes('announcement');
+    }
+
+    function isSystemMessage(message) {
+      return String(message.MessageType || '').toLowerCase() === 'system';
+    }
+
+    function isOwnMessage(message) {
+      const identity = state.chatIdentity || {};
+      return !!((identity.UserID && message.UserID === identity.UserID) || (identity.DisplayName && message.DisplayName === identity.DisplayName));
+    }
+
+    function chatMessageStreamHtml(messages) {
+      let lastDay = '';
+      let lastSender = '';
+      return messages.map((message) => {
+        const day = chatDayKey(message.Timestamp);
+        const sender = message.UserID || message.DisplayName || '';
+        const divider = day !== lastDay ? `<div class="chat-date-divider"><span>${escapeHtml(chatDateLabel(message.Timestamp))}</span></div>` : '';
+        const compact = day === lastDay && sender === lastSender && !isSystemMessage(message);
+        lastDay = day;
+        lastSender = sender;
+        return divider + chatMessageHtml(message, { compact });
+      }).join('');
+    }
+
+    function chatMessageHtml(message, options = {}) {
+      if (isSystemMessage(message)) return `<div class="chat-system">${escapeHtml(message.MessageText)}</div>`;
+      const id = String(message.MessageID || '');
+      const arg = escapeAttr(jsString(id));
+      const reported = String(message.ReportStatus || '').trim();
+      const own = isOwnMessage(message);
+      const teacher = isTeacherMessage(message);
+      const reactions = state.chatReactions?.[id] || {};
+      const reply = message.ReplyToMessageID ? (state.data.chatMessages || []).find((item) => item.MessageID === message.ReplyToMessageID) : null;
+      const image = String(message.ImageLink || '').trim();
+      const classes = ['chat-message', own ? 'own' : '', teacher ? 'teacher' : '', options.compact ? 'compact' : '', message.MessageType === 'sticker' ? 'sticker' : ''].filter(Boolean).join(' ');
+      return `
+        <div class="${classes}">
+          <button class="chat-avatar ${teacher ? 'teacher' : chatRoomTone({ ChatRoomID: message.ChatRoomID })}" type="button" onclick="showChatProfile(${escapeAttr(jsString(message.UserID || message.DisplayName))})">${escapeHtml(avatarText(message.DisplayName))}</button>
+          <div class="chat-stack">
+            <div class="chat-sender">
+              <button class="chat-action" type="button" onclick="showChatProfile(${escapeAttr(jsString(message.UserID || message.DisplayName))})">${escapeHtml(safeDisplayName(message.DisplayName))}</button>
+              ${teacher ? '<span class="teacher-badge">ครูผู้ดูแล</span>' : `<span>${escapeHtml(message.ClassName || '')}</span>`}
+            </div>
+            <div class="chat-bubble ${reported ? 'reported' : ''}">
+              ${truthy(message.IsPinned) ? '<span class="badge earned">ปักหมุด</span>' : ''}
+              ${reported ? '<span class="status bad">ถูกรายงาน</span>' : ''}
+              ${reply ? `<div class="chat-quote">${escapeHtml(safeDisplayName(reply.DisplayName))}: ${escapeHtml(String(reply.MessageText || 'รูปภาพ').slice(0, 80))}</div>` : ''}
+              ${message.MessageText ? `<div>${escapeHtml(message.MessageText)}</div>` : ''}
+              ${image ? `<img class="chat-image" src="${escapeAttr(image)}" alt="รูปภาพที่แชร์ใน Green Chat" onclick="openChatImage('${escapeAttr(image)}')" onerror="this.style.display='none'">` : ''}
+            </div>
+            <div class="chat-time">${escapeHtml(chatTimeLabel(message.Timestamp))} ${own ? 'อ่านแล้ว' : ''}</div>
+            <div class="chat-reactions">
+              ${Object.entries(reactions).map(([emoji, count]) => `<button class="chat-reaction" type="button" onclick="reactToMessage(${arg}, '${escapeAttr(emoji)}')">${emoji} ${count}</button>`).join('')}
+            </div>
+            <div class="chat-actions">
+              ${['💚','👍','⭐','🍃'].map((emoji) => `<button class="chat-action" type="button" onclick="reactToMessage(${arg}, '${emoji}')">${emoji}</button>`).join('')}
+              <button class="chat-action" type="button" onclick="replyToChatMessage(${arg})">ตอบกลับ</button>
+              <button class="chat-action" type="button" onclick="reportChatMessage(${arg})">รายงาน</button>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function renderChat() {
+      const rooms = ensureChatRoom();
+      const room = rooms.find((item) => item.ChatRoomID === state.chatRoom) || rooms[0] || {};
+      const messages = (state.data.chatMessages || [])
+        .filter((message) => message.ChatRoomID === room.ChatRoomID && !statusIsHidden(message.ModerationStatus))
+        .sort((a, b) => String(a.Timestamp || '').localeCompare(String(b.Timestamp || '')));
+      const members = chatRoomMembers(room.ChatRoomID);
+      const mediaCount = messages.filter((message) => String(message.ImageLink || '').trim()).length;
+      const identity = state.chatIdentity || {};
+      const reply = state.replyToMessageID ? messages.find((message) => message.MessageID === state.replyToMessageID) : null;
+      document.getElementById('chat').innerHTML = `
+        <div class="chat-layout">
+          <aside class="chat-sidebar">
+            <div class="chat-sidebar-head">
+              <h3>Green Chat</h3>
+              <p>เลือกห้องสนทนา แชทอย่างสุภาพ และไม่เปิดเผยข้อมูลส่วนตัว</p>
+            </div>
+            <div class="chat-room-list">
+              ${rooms.map((item) => chatRoomRowHtml(item, room)).join('')}
+            </div>
+            <div class="chat-room-safe">พื้นที่สนทนาสำหรับโรงเรียน ครูสามารถตรวจข้อความ รายงาน และซ่อนได้เมื่อจำเป็น</div>
+          </aside>
+          <section class="chat-shell">
+            <header class="chat-header">
+              <div class="chat-header-main">
+                <button class="chat-icon-btn" type="button" onclick="showPage('friends')" title="กลับไปดูเพื่อน">‹</button>
+                <div class="room-avatar ${chatRoomTone(room)}">${escapeHtml(avatarText(room.ChatRoomName || 'GC'))}</div>
+                <div style="min-width:0">
+                  <span class="chat-line-title">${escapeHtml(room.ChatRoomName || 'Green Chat')}</span>
+                  <span class="chat-line-sub">${escapeHtml(room.ChatRoomType || 'ห้องสนทนา')} · ${members.length || 1} สมาชิก · ผู้ดูแล ${escapeHtml(room.TeacherModerator || 'ครูผู้ดูแล')}</span>
+                </div>
+              </div>
+              <div class="chat-toolbar">
+                <button class="chat-icon-btn" type="button" onclick="showChatMembers()" title="ดูสมาชิก">👥</button>
+                <button class="chat-icon-btn" type="button" onclick="showChatMedia()" title="ดูรูปภาพ">🖼</button>
+                <button class="chat-icon-btn" type="button" onclick="showChatRules()" title="กติกา">ⓘ</button>
+              </div>
+            </header>
+            <div class="chat-window" id="chatWindow">
+              ${truthy(messages.find((message) => truthy(message.IsPinned))?.IsPinned) ? `<div class="chat-system">มีข้อความปักหมุดในห้องนี้ กรุณาอ่านประกาศจากครูผู้ดูแล</div>` : ''}
+              ${messages.length ? chatMessageStreamHtml(messages) : '<div class="chat-system">ยังไม่มีข้อความในห้องนี้ เริ่มทักทายด้วยเรื่องลดขยะได้เลย</div>'}
+            </div>
+            <form class="chat-composer" id="chatForm" onsubmit="sendChatMessage(event)">
+              <div class="chat-identity-row">
+                <input name="DisplayName" required maxlength="40" placeholder="ชื่อเล่น" value="${escapeAttr(identity.DisplayName || '')}">
+                <input name="ClassName" maxlength="20" placeholder="ชั้น/ห้อง" value="${escapeAttr(identity.ClassName || '')}">
+                <input name="UserID" maxlength="30" placeholder="รหัสย่อ เช่น ST***01" value="${escapeAttr(identity.UserID || '')}">
+              </div>
+              <div class="chat-reply-bar" id="chatReplyBar" ${reply ? '' : 'hidden'}>
+                <span>ตอบกลับ ${reply ? escapeHtml(safeDisplayName(reply.DisplayName)) : ''}: ${reply ? escapeHtml(String(reply.MessageText || 'รูปภาพ').slice(0, 90)) : ''}</span>
+                <button class="chat-action" type="button" onclick="clearChatReply()">ยกเลิก</button>
+              </div>
+              <div class="chat-emoji-tray" id="chatEmojiTray" hidden>
+                ${['🌱','♻️','💚','🍃','🌍','🏡','🗑️','📷','⭐','🏆'].map((emoji) => `<button class="chat-reaction" type="button" onclick="insertChatEmoji('${emoji}')">${emoji}</button>`).join('')}
+              </div>
+              <div class="chat-sticker-tray" id="chatStickerTray" hidden>
+                ${['เก่งมาก 💚','สู้ ๆ 🌱','ไอเดียดีมาก 🍃','สุดยอด ⭐','ช่วยโลกได้อีกก้าว 🌍'].map((text) => `<button class="chat-sticker" type="button" onclick="sendSticker(${escapeAttr(jsString(text))})">${escapeHtml(text)}</button>`).join('')}
+              </div>
+              <input id="chatImageFile" type="file" accept="image/*" hidden onchange="showChatImageName()">
+              <div class="chat-compose-row">
+                <button class="chat-icon-btn" type="button" onclick="toggleChatTray('chatEmojiTray')" title="อิโมจิ">☺</button>
+                <button class="chat-icon-btn" type="button" onclick="document.getElementById('chatImageFile').click()" title="แนบรูป">📎</button>
+                <textarea id="chatMessageInput" name="MessageText" rows="1" maxlength="500" placeholder="พิมพ์ข้อความถึงเพื่อน ๆ..." onkeydown="chatTextareaKey(event)"></textarea>
+                <button class="chat-send-btn" type="submit" title="ส่งข้อความ">➤</button>
+              </div>
+              <div class="btn-row" style="justify-content:space-between">
+                <span class="room-meta" id="chatImageName">กด Enter เพื่อส่งข้อความ หรือ Shift+Enter เพื่อขึ้นบรรทัดใหม่</span>
+                <span>
+                  <button class="chat-action" type="button" onclick="toggleChatTray('chatStickerTray')">สติกเกอร์</button>
+                  <button class="chat-action" type="button" onclick="askTeacherShortcut()">ถามครู</button>
+                  <button class="chat-action" type="button" onclick="toggleChatNotifications()">แจ้งเตือน: เปิด</button>
+                </span>
+              </div>
+            </form>
+          </section>
+        </div>`;
+      requestAnimationFrame(() => {
+        const windowEl = document.getElementById('chatWindow');
+        if (windowEl) windowEl.scrollTop = windowEl.scrollHeight;
+      });
+    }
+
+    function setChatRoom(roomId) {
+      state.chatRoom = roomId;
+      state.replyToMessageID = '';
+      renderChat();
+    }
+
+    function toggleChatTray(id) {
+      const el = document.getElementById(id);
+      if (el) el.hidden = !el.hidden;
+    }
+
+    function insertChatEmoji(emoji) {
+      const input = document.getElementById('chatMessageInput');
+      if (!input) return;
+      input.value = `${input.value || ''}${emoji}`;
+      input.focus();
+    }
+
+    function chatTextareaKey(event) {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        document.getElementById('chatForm')?.requestSubmit();
+      }
+    }
+
+    function showChatImageName() {
+      const file = document.getElementById('chatImageFile')?.files?.[0];
+      const label = document.getElementById('chatImageName');
+      if (label) label.textContent = file ? `แนบรูป: ${file.name}` : 'กด Enter เพื่อส่งข้อความ หรือ Shift+Enter เพื่อขึ้นบรรทัดใหม่';
+    }
+
+    function replyToChatMessage(messageId) {
+      state.replyToMessageID = messageId;
+      renderChat();
+      document.getElementById('chatMessageInput')?.focus();
+    }
+
+    function clearChatReply() {
+      state.replyToMessageID = '';
+      renderChat();
+    }
+
+    function reactToMessage(messageId, emoji) {
+      state.chatReactions ||= {};
+      state.chatReactions[messageId] ||= {};
+      state.chatReactions[messageId][emoji] = Number(state.chatReactions[messageId][emoji] || 0) + 1;
+      localStorage.setItem('greenPassportChatReactions', JSON.stringify(state.chatReactions));
+      renderChat();
+    }
+
+    function openChatImage(src) {
+      window.open(src, '_blank', 'noopener');
+    }
+
+    function showChatMembers() {
+      const members = chatRoomMembers(state.chatRoom);
+      alert(members.length ? members.map((member) => `${safeDisplayName(member.DisplayName)} ${member.ClassName || ''}`).join('\n') : 'ยังไม่มีรายชื่อสมาชิกในห้องนี้');
+    }
+
+    function showChatMedia() {
+      const images = (state.data.chatMessages || []).filter((message) => message.ChatRoomID === state.chatRoom && message.ImageLink);
+      alert(images.length ? images.map((message) => `${safeDisplayName(message.DisplayName)} - ${chatTimeLabel(message.Timestamp)}`).join('\n') : 'ยังไม่มีรูปภาพที่แชร์ในห้องนี้');
+    }
+
+    function showChatRules() {
+      alert('กติกา Green Chat\n1. ใช้ถ้อยคำสุภาพ\n2. ไม่เปิดเผยเบอร์โทร ที่อยู่ หรือบัญชีส่วนตัว\n3. คุยเรื่องการลดขยะและภารกิจสีเขียว\n4. รายงานข้อความที่ไม่เหมาะสมให้ครูตรวจ');
+    }
+
+    function showChatProfile(profileId) {
+      const profile = allProfiles().find((item) => item.UserID === profileId || item.DisplayName === profileId);
+      if (!profile) {
+        alert('ยังไม่มีข้อมูลโปรไฟล์ของผู้ใช้นี้');
+        return;
+      }
+      alert(`${safeDisplayName(profile.DisplayName)}\n${profile.ClassName || ''}\n${profile.CurrentLevel || ''}\nEXP ${profile.CurrentEXP || 0}\nBadge ${profile.TotalBadges || 0}`);
+    }
+
+    function askTeacherShortcut() {
+      state.chatRoom = 'CR-TEACHER-01';
+      renderChat();
+      const input = document.getElementById('chatMessageInput');
+      if (input) {
+        input.value = 'ครูครับ/ค่ะ ขอสอบถามเรื่อง ';
+        input.focus();
+      }
+    }
+
+    function toggleChatNotifications() {
+      const key = 'greenPassportChatNotifications';
+      const next = localStorage.getItem(key) === 'off' ? 'on' : 'off';
+      localStorage.setItem(key, next);
+      alert(`ตั้งค่าการแจ้งเตือน Green Chat: ${next === 'on' ? 'เปิด' : 'ปิด'}`);
+    }
+
+    function moderateMessageText(text) {
+      const value = String(text || '').trim();
+      if (/(https?:\/\/|www\.)/i.test(value)) return { ok: false, message: 'ยังไม่อนุญาตให้ส่งลิงก์ใน Green Chat' };
+      if (/\d{8,}/.test(value.replace(/[\s-]/g, ''))) return { ok: false, message: 'ไม่ควรส่งเบอร์โทรหรือข้อมูลติดต่อส่วนตัวใน Green Chat' };
+      if (/(ที่อยู่|เบอร์|ไลน์|line id|facebook|ig|instagram)/i.test(value)) return { ok: false, message: 'กรุณาไม่เปิดเผยข้อมูลส่วนตัวหรือช่องทางติดต่อ' };
+      if (/(โง่|เกลียด|ด่า|หยาบ|บูลลี่)/i.test(value)) return { ok: false, message: 'กรุณาใช้ถ้อยคำสุภาพและให้กำลังใจกัน' };
+      return { ok: true };
+    }
+
+    async function sendChatMessage(event) {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const data = Object.fromEntries(new FormData(form).entries());
+      const fileInput = document.getElementById('chatImageFile');
+      const imagePayload = fileInput?.files?.length ? (await filesToPayload(fileInput.files))[0] : null;
+      const text = String(data.MessageText || '').trim();
+      if (!text && !imagePayload) {
+        alert('กรุณาพิมพ์ข้อความหรือแนบรูปภาพก่อนส่ง');
+        return;
+      }
+      const check = moderateMessageText(text);
+      if (!check.ok) {
+        alert(check.message);
+        return;
+      }
+      state.chatIdentity = {
+        DisplayName: data.DisplayName || '',
+        ClassName: data.ClassName || '',
+        UserID: data.UserID || data.DisplayName || '',
+      };
+      localStorage.setItem('greenPassportChatIdentity', JSON.stringify(state.chatIdentity));
+      const message = {
+        MessageID: `MSG-${Date.now()}`,
+        ChatRoomID: state.chatRoom,
+        Timestamp: nowStamp(),
+        UserID: data.UserID || data.DisplayName || 'guest',
+        DisplayName: data.DisplayName,
+        ClassName: data.ClassName,
+        MessageText: text,
+        ImageLink: imagePayload?.data || '',
+        MessageType: imagePayload ? 'image' : 'text',
+        ReplyToMessageID: state.replyToMessageID || '',
+        IsPinned: false,
+        ReportStatus: '',
+        ModerationStatus: 'ปกติ',
+      };
+      try {
+        const result = await sheetApi('appendChatMessage', { message });
+        state.data.chatMessages.push(normalizeRow(result.message || message));
+      } catch (error) {
+        state.data.chatMessages.push(normalizeRow(message));
+        queuePendingWrite('appendChatMessage', { message });
+        alert('บันทึกข้อความไว้ในเครื่องแล้ว และจะส่งเข้า Google Sheets เมื่อเชื่อมต่อได้');
+      }
+      saveToLocalStorage();
+      state.replyToMessageID = '';
+      form.reset();
+      renderChat();
+    }
+
+    async function sendSticker(text) {
+      const identity = state.chatIdentity || {};
+      if (!identity.DisplayName) {
+        alert('กรุณากรอกชื่อที่แสดงก่อนส่งสติกเกอร์');
+        return;
+      }
+      const message = {
+        MessageID: `MSG-${Date.now()}`,
+        ChatRoomID: state.chatRoom,
+        Timestamp: nowStamp(),
+        UserID: identity.UserID || identity.DisplayName || 'guest',
+        DisplayName: identity.DisplayName,
+        ClassName: identity.ClassName || '',
+        MessageText: text,
+        ImageLink: '',
+        MessageType: 'sticker',
+        ReplyToMessageID: state.replyToMessageID || '',
+        IsPinned: false,
+        ReportStatus: '',
+        ModerationStatus: 'ปกติ',
+      };
+      try {
+        const result = await sheetApi('appendChatMessage', { message });
+        state.data.chatMessages.push(normalizeRow(result.message || message));
+      } catch (error) {
+        state.data.chatMessages.push(normalizeRow(message));
+        queuePendingWrite('appendChatMessage', { message });
+      }
+      state.replyToMessageID = '';
+      saveToLocalStorage();
+      renderChat();
+    }
+
+    async function reportChatMessage(messageId) {
+      if (!confirm('รายงานข้อความนี้ให้ครูตรวจสอบหรือไม่')) return;
+      const message = (state.data.chatMessages || []).find((item) => item.MessageID === messageId);
+      if (message) {
+        message.ReportStatus = 'ถูกรายงาน';
+        message.ModerationStatus = 'รอครูตรวจสอบ';
+      }
+      try {
+        await sheetApi('reportChatMessage', { messageId });
+      } catch (error) {
+        queuePendingWrite('reportChatMessage', { messageId });
+      }
+      saveToLocalStorage();
+      renderChat();
+    }
+
+    function renderProfile() {
+      const profiles = allProfiles();
+      if (!profiles.length) {
+        document.getElementById('profile').innerHTML = '<div class="panel"><h3>โปรไฟล์ของฉัน</h3><div class="notice">ยังไม่มีข้อมูลโปรไฟล์ เริ่มจากบันทึกข้อมูลขยะหรือเล่นเกมก่อน</div></div>';
+        return;
+      }
+      if (!profiles.some((profile) => (profile.UserID || profile.DisplayName) === state.profileUserID)) {
+        state.profileUserID = profiles[0].UserID || profiles[0].DisplayName;
+      }
+      const profile = profiles.find((item) => (item.UserID || item.DisplayName) === state.profileUserID) || profiles[0];
+      const current = levelInfoByEXP(profile.CurrentEXP);
+      const next = nextLevelInfo(profile.CurrentEXP);
+      const posts = (state.data.communityPosts || []).filter((post) => (post.UserID === profile.UserID || post.DisplayName === profile.DisplayName) && statusIsPublished(post.ReviewStatus));
+      document.getElementById('profile').innerHTML = `
+        <div class="panel">
+          <label class="profile-picker">เลือกโปรไฟล์<select onchange="openProfile(this.value)">${profiles.map((item) => {
+            const id = item.UserID || item.DisplayName;
+            return `<option value="${escapeAttr(id)}" ${id === state.profileUserID ? 'selected' : ''}>${escapeHtml(safeDisplayName(item.DisplayName))} · ${escapeHtml(item.LevelName || '')}</option>`;
+          }).join('')}</select></label>
+        </div>
+        <div class="profile-banner" style="margin-top:16px">
+          <div class="btn-row" style="justify-content:space-between">
+            <div class="btn-row">
+              <div class="avatar" style="width:64px;height:64px">${escapeHtml(profile.Avatar || avatarText(profile.DisplayName))}</div>
+              <div>
+                <h3>${escapeHtml(safeDisplayName(profile.DisplayName))}</h3>
+                <p>${escapeHtml(profile.ClassName || '')} · ${current.emoji} ${escapeHtml(current.name)}</p>
+              </div>
+            </div>
+            <span class="badge earned">${Number(profile.CurrentEXP || 0)} EXP</span>
+          </div>
+          <div class="progress-track" style="margin-top:16px"><div class="progress-fill" style="width:${progressToNextLevel(profile.CurrentEXP)}%"></div></div>
+          <p style="margin-top:8px">${current.name === next.name ? 'ถึงระดับสูงสุดแล้ว' : `อีก ${Math.max(0, Number(next.min || 0) - Number(profile.CurrentEXP || 0))} EXP ถึง ${next.emoji} ${next.name}`}</p>
+        </div>
+        <div class="grid four" style="margin-top:16px">
+          ${kpi('EXP', Number(profile.CurrentEXP || 0), '')}
+          ${kpi('คะแนนเกม', Number(profile.TotalScore || 0), 'คะแนน')}
+          ${kpi('Badge', Number(profile.TotalBadges || 0), 'ชิ้น')}
+          ${kpi('โพสต์', Number(profile.TotalPosts || posts.length || 0), 'โพสต์')}
+        </div>
+        <div class="grid two" style="margin-top:16px">
+          <div class="panel">
+            <h3>เส้นทาง Level</h3>
+            <div class="level-row">${levelCatalog.map((level) => `<div class="level-chip ${level.name === current.name ? 'active' : ''}"><div class="emoji">${level.emoji}</div><strong>${level.name}</strong><span>${level.min}+ EXP</span></div>`).join('')}</div>
+          </div>
+          <div class="panel">
+            <h3>ผลงานของฉัน</h3>
+            <p>${escapeHtml(profile.HouseholdStatus || 'กำลังสะสมผลงานลดขยะในครัวเรือน')}</p>
+            <div class="grid two">
+              ${kpi('ส่งข้อมูล', Number(profile.TotalSubmissions || 0), 'ครั้ง')}
+              ${kpi('ลดคาร์บอน', format(profile.TotalCO2e || 0), 'kgCO₂e')}
+            </div>
+            <div class="tag-row" style="margin-top:12px">${posts.slice(0, 6).map((post) => `<span class="tag">${escapeHtml(post.PostTitle)}</span>`).join('') || '<span class="tag">เริ่มแชร์ประสบการณ์ได้ที่หน้าชุมชน</span>'}</div>
+          </div>
+        </div>`;
     }
 
     function impactSummary() {
@@ -2864,7 +4423,8 @@
           ${kpi('คาร์บอนเพิ่มขึ้น', format(co2Increase), 'kgCO₂e')}
           ${kpi('พฤติกรรมลดขยะ', sumOne(last, ['ReducePlasticBagTimes','CarryBottleTimes','UseLunchBoxTimes','RefuseStrawTimes','CarryClothBagTimes']), 'ครั้ง')}
         </div>
-        <div class="notice" style="margin-top:16px">ครัวเรือนนี้ลดขยะทั่วไปได้ ${format(generalDrop)}% เมื่อเทียบกับเดือนแรก และมีพัฒนาการด้านการจัดการขยะอินทรีย์</div>`;
+        <div class="notice" style="margin-top:16px">ครัวเรือนนี้ลดขยะทั่วไปได้ ${format(generalDrop)}% เมื่อเทียบกับเดือนแรก และมีพัฒนาการด้านการจัดการขยะอินทรีย์</div>
+        <div style="margin-top:16px">${greenBuddy(generalDrop > 0 ? `ขยะทั่วไปลดลง ${format(generalDrop)}% แล้ว เก็บหลักฐานต่อเนื่องเพื่อก้าวสู่ Zero Waste Home นะ 🏡` : 'เดือนนี้ยังลดขยะทั่วไปได้ไม่ชัด ลองเริ่มจากลดถุงพลาสติกและตั้งมุมแยกขยะนะ ♻️', true)}</div>`;
     }
 
     function renderFormula() {
@@ -2904,6 +4464,58 @@
           </div>
           <div class="btn-row" style="margin-top:16px"><button class="btn yellow" onclick="exportCsv('missions')">Export MonthlyMissions CSV</button><button class="btn" onclick="showPage('record')">ส่งหลักฐานภารกิจ</button></div>
         </div>`;
+    }
+
+    function renderReminders() {
+      const missing = state.data.householdSummary.filter((h) => Number(h.TotalSubmissions || 0) < 3);
+      const pending = state.data.wasteRecords.filter((r) => (r.ReviewStatus || 'รอตรวจสอบ') === 'รอตรวจสอบ');
+      const needFix = state.data.wasteRecords.filter((r) => ['ต้องแก้ไข','หลักฐานไม่ชัดเจน','ข้อมูลไม่ตรงกับหลักฐาน','ข้อมูลกับหลักฐานไม่สอดคล้องกัน'].includes(r.ReviewStatus));
+      const message = lineReminderText();
+      document.getElementById('reminders').innerHTML = `
+        <div class="impact-hero">
+          <div>
+            <h3>แจ้งเตือน Green Passport</h3>
+            <p>รวมรายการที่ควรติดตาม ทั้งครัวเรือนที่ยังส่งข้อมูลไม่ครบ รายการรอตรวจหลักฐาน และรายการที่ต้องแก้ไข เพื่อให้ครูและนักเรียนปิดงานรายเดือนได้ทันเวลา</p>
+            <div class="guide-actions">
+              <button class="btn" onclick="copyLineReminder()">คัดลอกข้อความ LINE</button>
+              <button class="btn secondary" onclick="showPage('admin')">ไปหน้า Admin</button>
+            </div>
+          </div>
+          ${greenBuddy('ฉันจะช่วยเตือนงานสำคัญก่อนถึงรอบสรุปรายเดือนนะ 📣', true)}
+        </div>
+        <div class="grid three">
+          ${kpi('ครัวเรือนส่งไม่ครบ', missing.length, 'ครัวเรือน')}
+          ${kpi('รอตรวจหลักฐาน', pending.length, 'รายการ')}
+          ${kpi('ต้องแก้ไข', needFix.length, 'รายการ')}
+        </div>
+        <div class="grid two" style="margin-top:16px">
+          <div class="panel">
+            <h3>ข้อความแจ้งเตือนสำหรับ LINE</h3>
+            <p>${message}</p>
+            <button class="btn ghost" onclick="copyLineReminder()">คัดลอกข้อความ</button>
+          </div>
+          <div class="panel">
+            <h3>รายการที่ควรติดตาม</h3>
+            ${reminderListHtml(missing, pending, needFix)}
+          </div>
+        </div>`;
+    }
+
+    function reminderListHtml(missing, pending, needFix) {
+      const missingHtml = missing.slice(0, 8).map((h) => `<li>${h.StudentName || '-'} | ${h.ClassName || '-'} | ${h.HouseholdName || '-'}</li>`).join('');
+      const pendingHtml = pending.slice(0, 8).map((r) => `<li>${r.StudentName || '-'} | ${r.ReportMonth || '-'} | ${r.ReviewStatus || 'รอตรวจสอบ'}</li>`).join('');
+      const fixHtml = needFix.slice(0, 8).map((r) => `<li>${r.StudentName || '-'} | ${r.ReportMonth || '-'} | ${r.ReviewStatus || '-'}</li>`).join('');
+      return `
+        <div class="grid">
+          <div><strong>ส่งไม่ครบ</strong><ul class="mini-list">${missingHtml || '<li>ไม่มีรายการ</li>'}</ul></div>
+          <div><strong>รอตรวจ</strong><ul class="mini-list">${pendingHtml || '<li>ไม่มีรายการ</li>'}</ul></div>
+          <div><strong>ต้องแก้ไข</strong><ul class="mini-list">${fixHtml || '<li>ไม่มีรายการ</li>'}</ul></div>
+        </div>`;
+    }
+
+    function lineReminderText() {
+      const missing = state.data.householdSummary.filter((h) => Number(h.TotalSubmissions || 0) < 3);
+      return `แจ้งเตือน Green Passport: ขอความร่วมมือผู้ปกครองช่วยบันทึกข้อมูลขยะประจำเดือนในระบบ Green Passport ภายในสัปดาห์นี้ จำนวนครัวเรือนที่ยังส่งไม่ครบ ${missing.length} ครัวเรือน ขอบคุณค่ะ/ครับ`;
     }
 
     function renderStudentRoles() {
@@ -3053,7 +4665,7 @@
             <label>เดือน<input id="adminMonth" type="month"></label>
             <label>ห้อง<input id="adminClass" type="text" placeholder="เช่น ป.5/1"></label>
             <label>ชื่อนักเรียน<input id="adminName" type="text"></label>
-            <label>สถานะ<select id="adminStatus"><option value="">ทั้งหมด</option><option>รอตรวจสอบ</option><option>ผ่านการตรวจสอบ</option><option>ต้องแก้ไข</option><option>หลักฐานไม่ชัดเจน</option><option>ข้อมูลกับหลักฐานไม่สอดคล้องกัน</option></select></label>
+            <label>สถานะ<select id="adminStatus"><option value="">ทั้งหมด</option><option>รอตรวจสอบ</option><option>ผ่านการตรวจสอบ</option><option>ต้องแก้ไข</option><option>หลักฐานไม่ชัดเจน</option><option>ข้อมูลไม่ตรงกับหลักฐาน</option></select></label>
           </div>
           <div class="btn-row" style="margin-top:12px">
             <button class="btn ghost" onclick="renderAdminTable()">กรองข้อมูล</button>
@@ -3064,26 +4676,179 @@
             <button class="btn yellow" onclick="exportCsv('missions')">Export ภารกิจรายเดือน</button>
           </div>
         </div>
+        ${adminToolsPanelHtml()}
+        ${adminCommunityPanelHtml()}
         <div class="panel">
           <h3>Export Reports</h3>
           <div class="download-grid">
             ${[
               ['records','รายงานรายเดือน'],
               ['summary','รายงานรายครัวเรือน'],
-              ['impact','รายงานภาพรวมโครงการ/ส่งประกวด'],
-              ['records','รายงานลดก๊าซเรือนกระจก'],
-              ['summary','รายชื่อผู้ส่งข้อมูลครบ'],
-              ['summary','รายชื่อผู้ยังไม่ส่งข้อมูล'],
-              ['records','รายงานหลักฐานที่ผ่านการตรวจสอบ'],
-              ['summary','รายงานครัวเรือนต้นแบบ'],
-              ['impact','ข้อมูลสำหรับทำ Infographic'],
+              ['impact','รายงานภาพรวมโครงการ'],
+              ['carbon','รายงานลดก๊าซเรือนกระจก'],
+              ['complete','รายชื่อผู้ส่งข้อมูลครบ'],
+              ['missing','รายชื่อผู้ยังไม่ส่งข้อมูล'],
+              ['reviewed','รายงานหลักฐานที่ผ่านการตรวจสอบ'],
+              ['modelHomes','รายงานครัวเรือนต้นแบบ'],
+              ['infographic','ข้อมูลสำหรับทำ Infographic'],
+              ['contest','ข้อมูลสำหรับส่งประกวดนวัตกรรม'],
               ['missions','ภารกิจรายเดือน'],
+              ['communityPosts','โพสต์ชุมชน'],
+              ['postComments','ความคิดเห็นชุมชน'],
+              ['chatMessages','ข้อความ Green Chat'],
+              ['userProfiles','โปรไฟล์และ Level'],
+              ['levelRules','เกณฑ์ Level/EXP'],
+              ['expLogs','บันทึก EXP'],
             ].map(([type, label]) => `<button class="btn ghost" onclick="exportCsv('${type}')">${label}</button>`).join('')}
           </div>
         </div>
         <div class="panel"><h3>ตรวจสอบหลักฐานโดยครู</h3><div id="adminTable"></div></div>
         <div class="panel"><h3>ผลการเล่นเกม Trash Hero Academy</h3>${adminGameScoresHtml()}</div>
       </div>`;
+    }
+
+    function adminToolsPanelHtml() {
+      return `
+        <div class="panel">
+          <h3>เครื่องมือ Admin</h3>
+          <p>รวมหน้าที่ใช้สำหรับครู ผู้ดูแลระบบ และการทำรายงานไว้ในจุดเดียว เพื่อลดจำนวนแท็บหลักของผู้ใช้งานทั่วไป</p>
+          <div class="quick-menu">
+            ${adminToolPages().map(([id, label, icon]) => `
+              <button class="menu-card" onclick="showPage('${id}')">
+                ${icons[icon]}<strong>${label}</strong><small>${menuHelp(id)}</small>
+              </button>`).join('')}
+          </div>
+        </div>`;
+    }
+
+    function adminCommunityPanelHtml() {
+      const posts = state.data.communityPosts || [];
+      const comments = state.data.postComments || [];
+      const messages = state.data.chatMessages || [];
+      const pendingPosts = posts.filter((post) => !statusIsPublished(post.ReviewStatus) && !statusIsHidden(post.ReviewStatus));
+      const pendingComments = comments.filter((comment) => !statusIsPublished(comment.ReviewStatus) && !statusIsHidden(comment.ReviewStatus));
+      const reportedMessages = messages.filter((message) => String(message.ReportStatus || '').trim() || String(message.ModerationStatus || '').includes('รอครู'));
+      return `
+        <div class="panel">
+          <h3>Admin ชุมชน Green Passport</h3>
+          <p>ตรวจโพสต์ ความคิดเห็น และข้อความที่ถูกรายงานจากพื้นที่ชุมชน โดยรวมงานของครูไว้ใน Admin เพื่อไม่ให้เมนูผู้ใช้ทั่วไปเยอะเกินไป</p>
+          <div class="grid four" style="margin-top:12px">
+            ${kpi('โพสต์ทั้งหมด', posts.length, 'โพสต์')}
+            ${kpi('รอตรวจโพสต์', pendingPosts.length, 'โพสต์')}
+            ${kpi('รอตรวจความคิดเห็น', pendingComments.length, 'รายการ')}
+            ${kpi('แชทรายงาน', reportedMessages.length, 'ข้อความ')}
+          </div>
+          <div class="table-wrap" style="margin-top:16px">
+            <table>
+              <thead><tr><th>โพสต์รอตรวจ</th><th>ผู้ส่ง</th><th>เนื้อหา</th><th>สถานะ</th><th>จัดการ</th></tr></thead>
+              <tbody>${pendingPosts.slice(0, 12).map((post) => {
+                const id = escapeAttr(jsString(post.PostID));
+                return `<tr>
+                  <td><strong>${escapeHtml(post.PostTitle)}</strong><br><small>${escapeHtml(post.Category || '')}</small></td>
+                  <td>${escapeHtml(safeDisplayName(post.DisplayName))}<br><small>${escapeHtml(post.ClassName || '')}</small></td>
+                  <td><small>${escapeHtml(String(post.PostContent || '').slice(0, 180))}</small></td>
+                  <td>${escapeHtml(post.ReviewStatus || 'รอตรวจสอบ')}</td>
+                  <td><div class="btn-row">
+                    <button class="btn ghost" onclick="quickReviewPost(${id}, 'เผยแพร่แล้ว', 'โพสต์ผ่านการตรวจสอบและเผยแพร่ได้')">เผยแพร่</button>
+                    <button class="btn ghost" onclick="quickReviewPost(${id}, 'ต้องแก้ไข', 'กรุณาปรับเนื้อหาให้ชัดเจนและไม่เปิดเผยข้อมูลส่วนตัว')">ให้แก้ไข</button>
+                    <button class="btn ghost" onclick="quickReviewPost(${id}, 'ซ่อน', 'ซ่อนโพสต์เพื่อความปลอดภัยของชุมชน')">ซ่อน</button>
+                  </div></td>
+                </tr>`;
+              }).join('') || '<tr><td colspan="5">ไม่มีโพสต์รอตรวจ</td></tr>'}</tbody>
+            </table>
+          </div>
+          <div class="table-wrap" style="margin-top:16px">
+            <table>
+              <thead><tr><th>ความคิดเห็นรอตรวจ</th><th>โพสต์</th><th>ผู้ส่ง</th><th>จัดการ</th></tr></thead>
+              <tbody>${pendingComments.slice(0, 12).map((comment) => {
+                const id = escapeAttr(jsString(comment.CommentID));
+                const post = posts.find((item) => item.PostID === comment.PostID) || {};
+                return `<tr>
+                  <td>${escapeHtml(comment.CommentText)}</td>
+                  <td>${escapeHtml(post.PostTitle || comment.PostID)}</td>
+                  <td>${escapeHtml(safeDisplayName(comment.DisplayName))}</td>
+                  <td><div class="btn-row">
+                    <button class="btn ghost" onclick="quickReviewComment(${id}, 'เผยแพร่แล้ว', '')">เผยแพร่</button>
+                    <button class="btn ghost" onclick="quickReviewComment(${id}, 'ซ่อน', 'ซ่อนโดยครู')">ซ่อน</button>
+                  </div></td>
+                </tr>`;
+              }).join('') || '<tr><td colspan="4">ไม่มีความคิดเห็นรอตรวจ</td></tr>'}</tbody>
+            </table>
+          </div>
+          <div class="table-wrap" style="margin-top:16px">
+            <table>
+              <thead><tr><th>ข้อความแชทที่ต้องดูแล</th><th>ห้อง</th><th>ผู้ส่ง</th><th>สถานะ</th><th>จัดการ</th></tr></thead>
+              <tbody>${reportedMessages.slice(0, 12).map((message) => {
+                const id = escapeAttr(jsString(message.MessageID));
+                const room = (state.data.chatRooms || []).find((item) => item.ChatRoomID === message.ChatRoomID) || {};
+                return `<tr>
+                  <td>${escapeHtml(message.MessageText)}</td>
+                  <td>${escapeHtml(room.ChatRoomName || message.ChatRoomID)}</td>
+                  <td>${escapeHtml(safeDisplayName(message.DisplayName))}<br><small>${escapeHtml(message.ClassName || '')}</small></td>
+                  <td>${escapeHtml(message.ReportStatus || message.ModerationStatus || 'ปกติ')}</td>
+                  <td><div class="btn-row">
+                    <button class="btn ghost" onclick="quickModerateMessage(${id}, 'ปกติ', '', false)">ปกติ</button>
+                    <button class="btn ghost" onclick="quickModerateMessage(${id}, 'ซ่อน', 'ซ่อนโดยครู', false)">ซ่อน</button>
+                    <button class="btn ghost" onclick="quickModerateMessage(${id}, 'ปักหมุด', '', true)">ปักหมุด</button>
+                  </div></td>
+                </tr>`;
+              }).join('') || '<tr><td colspan="5">ไม่มีข้อความที่ถูกรายงาน</td></tr>'}</tbody>
+            </table>
+          </div>
+        </div>`;
+    }
+
+    function updateLocalById(rows, key, id, updates) {
+      const item = (rows || []).find((row) => row[key] === id);
+      if (item) Object.assign(item, updates);
+      return item;
+    }
+
+    function quickReviewPost(postId, status, comment) {
+      const updates = {
+        ReviewStatus: status,
+        TeacherComment: comment,
+        ApprovedBy: 'ครูผู้ดูแลโครงการ',
+        ApprovedAt: nowStamp(),
+      };
+      sheetApi('updateCommunityPostReview', { pin: state.adminPIN, postId, status, comment }).then(() => {
+        updateLocalById(state.data.communityPosts, 'PostID', postId, updates);
+        saveToLocalStorage();
+        renderAdmin();
+      }).catch((error) => {
+        updateLocalById(state.data.communityPosts, 'PostID', postId, updates);
+        saveToLocalStorage();
+        renderAdmin();
+        alert('อัปเดตในเครื่องแล้ว แต่ยังบันทึกลง Google Sheets ไม่สำเร็จ: ' + error.message);
+      });
+    }
+
+    function quickReviewComment(commentId, status, reportStatus) {
+      const updates = { ReviewStatus: status, ReportStatus: reportStatus || '' };
+      sheetApi('updatePostCommentReview', { pin: state.adminPIN, commentId, status, reportStatus }).then(() => {
+        updateLocalById(state.data.postComments, 'CommentID', commentId, updates);
+        saveToLocalStorage();
+        renderAdmin();
+      }).catch((error) => {
+        updateLocalById(state.data.postComments, 'CommentID', commentId, updates);
+        saveToLocalStorage();
+        renderAdmin();
+        alert('อัปเดตในเครื่องแล้ว แต่ยังบันทึกลง Google Sheets ไม่สำเร็จ: ' + error.message);
+      });
+    }
+
+    function quickModerateMessage(messageId, moderationStatus, reportStatus, isPinned) {
+      const updates = { ModerationStatus: moderationStatus, ReportStatus: reportStatus || '', IsPinned: !!isPinned };
+      sheetApi('updateChatMessageModeration', { pin: state.adminPIN, messageId, moderationStatus, reportStatus, isPinned: !!isPinned }).then(() => {
+        updateLocalById(state.data.chatMessages, 'MessageID', messageId, updates);
+        saveToLocalStorage();
+        renderAdmin();
+      }).catch((error) => {
+        updateLocalById(state.data.chatMessages, 'MessageID', messageId, updates);
+        saveToLocalStorage();
+        renderAdmin();
+        alert('อัปเดตในเครื่องแล้ว แต่ยังบันทึกลง Google Sheets ไม่สำเร็จ: ' + error.message);
+      });
     }
 
     function adminGameScoresHtml() {
@@ -3144,7 +4909,7 @@
         (!month || r.ReportMonth === month) &&
         (!cls || String(r.ClassName || '').includes(cls)) &&
         (!name || String(r.StudentName || '').includes(name)) &&
-        (!status || r.ReviewStatus === status)
+        reviewStatusMatches(r.ReviewStatus, status)
       );
       document.getElementById('adminTable').innerHTML = `<div class="table-wrap"><table><thead><tr><th>วันเวลาส่ง</th><th>นักเรียน</th><th>เดือน</th><th>ขยะ 4 ประเภท</th><th>คาร์บอน</th><th>หลักฐาน</th><th>สถานะ/หมายเหตุ</th><th>จัดการ</th></tr></thead><tbody>${rows.map((r) => `
         <tr>
@@ -3157,7 +4922,7 @@
           <td>${statusLabel(r.ReviewStatus)}<br><small>${r.TeacherComment || ''}</small><br><small>${r.ReviewedBy || ''} ${r.ReviewedAt || ''}</small></td>
           <td>
             <select id="status-${r._rowNumber}">
-              ${['รอตรวจสอบ','ผ่านการตรวจสอบ','ต้องแก้ไข','หลักฐานไม่ชัดเจน','ข้อมูลกับหลักฐานไม่สอดคล้องกัน'].map((s) => `<option ${s === r.ReviewStatus ? 'selected' : ''}>${s}</option>`).join('')}
+              ${reviewStatusOptions(r.ReviewStatus).map((s) => `<option ${s === r.ReviewStatus ? 'selected' : ''}>${s}</option>`).join('')}
             </select>
             <textarea id="comment-${r._rowNumber}" placeholder="หมายเหตุครู">${r.TeacherComment || ''}</textarea>
             <div class="btn-row">
@@ -3165,13 +4930,32 @@
               <button class="btn ghost" onclick="quickReview(${r._rowNumber}, 'ผ่านการตรวจสอบ', 'ข้อมูลผ่านการตรวจสอบแล้ว ✅')">ผ่าน</button>
               <button class="btn ghost" onclick="quickReview(${r._rowNumber}, 'ต้องแก้ไข', 'กรุณาแนบภาพที่เห็นน้ำหนักขยะชัดเจนขึ้น 📸')">แก้ไข</button>
               <button class="btn ghost" onclick="quickReview(${r._rowNumber}, 'หลักฐานไม่ชัดเจน', 'หลักฐานไม่ชัดเจน กรุณาถ่ายภาพใหม่ 📸')">ไม่ชัด</button>
+              <button class="btn ghost" onclick="quickReview(${r._rowNumber}, 'ข้อมูลไม่ตรงกับหลักฐาน', 'ข้อมูลปริมาณขยะกับหลักฐานยังไม่สอดคล้องกัน กรุณาตรวจสอบอีกครั้ง ⚠️')">ไม่ตรง</button>
             </div>
           </td>
         </tr>`).join('')}</tbody></table></div>`;
     }
 
+    function reviewStatusOptions(current = '') {
+      const options = ['รอตรวจสอบ','ผ่านการตรวจสอบ','ต้องแก้ไข','หลักฐานไม่ชัดเจน','ข้อมูลไม่ตรงกับหลักฐาน'];
+      if (current && !options.includes(current)) options.push(current);
+      return options;
+    }
+
+    function reviewStatusMatches(rowStatus, selectedStatus) {
+      if (!selectedStatus) return true;
+      if (selectedStatus === 'ข้อมูลไม่ตรงกับหลักฐาน') {
+        return ['ข้อมูลไม่ตรงกับหลักฐาน','ข้อมูลกับหลักฐานไม่สอดคล้องกัน'].includes(rowStatus);
+      }
+      return rowStatus === selectedStatus;
+    }
+
+    function isProblemReviewStatus(status) {
+      return ['ต้องแก้ไข','หลักฐานไม่ชัดเจน','ข้อมูลไม่ตรงกับหลักฐาน','ข้อมูลกับหลักฐานไม่สอดคล้องกัน'].includes(status);
+    }
+
     function statusLabel(status) {
-      const cls = status === 'ผ่านการตรวจสอบ' ? 'ok' : status === 'ต้องแก้ไข' || status === 'หลักฐานไม่ชัดเจน' ? 'bad' : '';
+      const cls = status === 'ผ่านการตรวจสอบ' ? 'ok' : isProblemReviewStatus(status) ? 'bad' : '';
       return `<span class="status ${cls}">${status || 'รอตรวจสอบ'}</span>`;
     }
 
@@ -3201,13 +4985,36 @@
     }
 
     function copyLineReminder() {
-      const missing = state.data.householdSummary.filter((h) => Number(h.TotalSubmissions || 0) < 3);
-      const text = `แจ้งเตือน Green Passport: ขอความร่วมมือผู้ปกครองช่วยบันทึกข้อมูลขยะประจำเดือนในระบบ Green Passport ภายในสัปดาห์นี้ จำนวนครัวเรือนที่ยังส่งไม่ครบ ${missing.length} ครัวเรือน ขอบคุณค่ะ/ครับ`;
+      const text = lineReminderText();
       navigator.clipboard?.writeText(text);
       alert(text);
     }
 
     function exportCsv(type) {
+      const reportNames = {
+        records: 'รายงานรายเดือน',
+        summary: 'รายงานรายครัวเรือน',
+        scores: 'คะแนนเกม',
+        impact: 'รายงานภาพรวมโครงการ',
+        missions: 'ภารกิจรายเดือน',
+        advice: 'กฎคำแนะนำ Green Buddy',
+        starterKit: 'Starter Kit',
+        carbon: 'รายงานลดก๊าซเรือนกระจก',
+        complete: 'รายชื่อผู้ส่งข้อมูลครบ',
+        missing: 'รายชื่อผู้ยังไม่ส่งข้อมูล',
+        reviewed: 'รายงานหลักฐานที่ผ่านการตรวจสอบ',
+        modelHomes: 'รายงานครัวเรือนต้นแบบ',
+        infographic: 'ข้อมูลสำหรับทำ Infographic',
+        contest: 'ข้อมูลสำหรับส่งประกวดนวัตกรรม',
+      };
+      Object.assign(reportNames, {
+        communityPosts: 'โพสต์ชุมชน',
+        postComments: 'ความคิดเห็นชุมชน',
+        chatMessages: 'ข้อความ Green Chat',
+        userProfiles: 'โปรไฟล์และ Level',
+        levelRules: 'เกณฑ์ Level/EXP',
+        expLogs: 'บันทึก EXP',
+      });
       let rows = state.data.wasteRecords;
       if (type === 'summary') rows = state.data.householdSummary;
       if (type === 'scores') rows = state.data.gameScores;
@@ -3215,7 +5022,45 @@
       if (type === 'missions') rows = monthlyMissions.map(([MissionID, Month, MissionName, Objective, Task, EvidenceRequired, BadgeReward, Score, Status]) => ({ MissionID, Month, MissionName, Objective, Task, EvidenceRequired, BadgeReward, Score, Status }));
       if (type === 'advice') rows = adviceRules;
       if (type === 'starterKit') rows = starterKitItems.map((ItemName, i) => ({ KitID: `SK-${String(i + 1).padStart(2, '0')}`, ItemName, Status: 'เตรียมเพิ่มลิงก์ดาวน์โหลด' }));
+      if (type === 'carbon') rows = state.data.wasteRecords.map((r) => ({
+        StudentName: r.StudentName,
+        ClassName: r.ClassName,
+        HouseholdName: r.HouseholdName,
+        ReportMonth: r.ReportMonth,
+        GeneralWasteKg: r.GeneralWasteKg,
+        RecycleWasteKg: r.RecycleWasteKg,
+        OrganicWasteKg: r.OrganicWasteKg,
+        HazardousWasteAmount: r.HazardousWasteAmount,
+        TotalCO2e: r.TotalCO2e,
+        ReviewStatus: r.ReviewStatus,
+      }));
+      if (type === 'complete') rows = state.data.householdSummary.filter((h) => Number(h.TotalSubmissions || 0) >= 3);
+      if (type === 'missing') rows = state.data.householdSummary.filter((h) => Number(h.TotalSubmissions || 0) < 3);
+      if (type === 'reviewed') rows = state.data.wasteRecords.filter((r) => r.ReviewStatus === 'ผ่านการตรวจสอบ');
+      if (type === 'modelHomes') rows = state.data.householdSummary.filter((h) => String(h.ZeroWasteHomeStatus || '').includes('ผ่าน') || Number(h.TotalSubmissions || 0) >= 3);
+      if (type === 'infographic') {
+        const impact = impactSummary();
+        rows = [
+          ['ครัวเรือนที่เข้าร่วม', impact.households, 'ครัวเรือน'],
+          ['รายการบันทึกทั้งหมด', impact.records, 'รายการ'],
+          ['ผู้มีส่วนร่วมทั้งหมด', impact.participants, 'คน'],
+          ['ขยะที่จัดการถูกวิธี', impact.managedWaste, 'kg'],
+          ['ลดก๊าซเรือนกระจก', impact.co2e, 'kgCO₂e'],
+          ['พฤติกรรมลดขยะต้นทาง', impact.reduceActions, 'ครั้ง'],
+          ['Zero Waste Home', impact.zeroWasteHomes, 'ครัวเรือน'],
+        ].map(([Metric, Value, Unit]) => ({ Metric, Value, Unit }));
+      }
+      if (type === 'contest') {
+        rows = [{ ...impactSummary(), ExportedFor: 'ส่งประกวดนวัตกรรม', StudentRoleEvidence: studentRoleSteps.length, StarterKitItems: starterKitItems.length }];
+      }
+      if (type === 'communityPosts') rows = state.data.communityPosts || [];
+      if (type === 'postComments') rows = state.data.postComments || [];
+      if (type === 'chatMessages') rows = state.data.chatMessages || [];
+      if (type === 'userProfiles') rows = allProfiles();
+      if (type === 'levelRules') rows = state.data.levelRules || defaultLevelRules();
+      if (type === 'expLogs') rows = state.data.expLogs || [];
       downloadCsv(rows, `green-passport-${type}.csv`);
+      logExport(type, reportNames[type] || type, rows.length);
     }
 
     function downloadCsv(rows, filename) {
@@ -3227,6 +5072,16 @@
       a.download = filename;
       a.click();
       URL.revokeObjectURL(url);
+    }
+
+    function logExport(reportType, reportName, rowCount) {
+      if (!sheetApiConfigured()) return;
+      sheetApi('logExportReport', {
+        reportType,
+        reportName,
+        rowCount,
+        exportedBy: state.adminPIN ? 'ครูผู้ดูแลโครงการ' : currentUserModeLabel(),
+      }).catch(() => {});
     }
 
     async function reloadData(silent = false) {
