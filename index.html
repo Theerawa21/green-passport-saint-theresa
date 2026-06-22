@@ -1909,6 +1909,11 @@
       }
     }
   </style>
+  <!-- Firebase SDK (Compat Version) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body class="auth-locked">
   <section id="authScreen" class="auth-screen" aria-live="polite"></section>
@@ -3209,6 +3214,12 @@
       try {
         await reloadData(true);
         applyCurrentUserToState();
+        if (firebaseFs) {
+          await fetchUserProfilesFromFirestore();
+        }
+        if (state.active === 'chat' && firebaseDb) {
+          subscribeToFirebaseChat(state.chatRoom || 'CR-MISSION-01');
+        }
         saveToLocalStorage();
         await syncPendingWrites();
         renderAll();
@@ -3230,9 +3241,38 @@
       state.authBusy = true;
       renderAuth();
       try {
-        const result = sheetApiConfigured()
-          ? await sheetApi('loginUser', { login, password })
-          : await localLoginUser(login, password);
+        let result;
+        if (firebaseAuth) {
+          const email = await firebaseEmailLookup(login);
+          const userCredential = await firebaseAuth.signInWithEmailAndPassword(email, password);
+          const uid = userCredential.user.uid;
+          const profileDoc = await firebaseFs.collection('userProfiles').doc(uid).get();
+          if (!profileDoc.exists) {
+            throw new Error('ไม่พบข้อมูลโปรไฟล์ผู้ใช้ในระบบ Firestore');
+          }
+          const profile = profileDoc.data();
+          result = {
+            ok: true,
+            token: userCredential.user.refreshToken || uid,
+            user: {
+              UserID: uid,
+              Username: profile.Username || login,
+              Email: email,
+              Role: profile.Role || 'student',
+              FirstName: profile.FirstName || '',
+              LastName: profile.LastName || '',
+              DisplayName: profile.DisplayName || '',
+              ClassName: profile.ClassName || '',
+              StudentID: profile.StudentID || '',
+              HouseholdName: profile.HouseholdStatus || '',
+              ConsentStatus: profile.ConsentStatus || 'ยินยอม'
+            }
+          };
+        } else {
+          result = sheetApiConfigured()
+            ? await sheetApi('loginUser', { login, password })
+            : await localLoginUser(login, password);
+        }
         await completeAuthSession(result, !!data.remember);
       } catch (remoteError) {
         try {
@@ -3277,15 +3317,85 @@
       state.authBusy = true;
       renderAuth();
       try {
-        const result = sheetApiConfigured()
-          ? await sheetApi('signupUser', { user, password })
-          : await localSignupUser(user, password);
+        let result;
+        if (firebaseAuth) {
+          const usernameClean = String(data.Username || '').trim().toLowerCase();
+          const usernameDoc = await firebaseFs.collection('usernames').doc(usernameClean).get();
+          if (usernameDoc.exists) {
+            throw new Error('Username นี้ถูกใช้งานแล้ว กรุณาเลือกชื่ออื่น');
+          }
+          if (data.StudentID) {
+            const studentClean = String(data.StudentID || '').trim().toLowerCase();
+            const studentDoc = await firebaseFs.collection('studentIDs').doc(studentClean).get();
+            if (studentDoc.exists) {
+              throw new Error('รหัสนักเรียนนี้ถูกลงทะเบียนไว้แล้ว');
+            }
+          }
+          const email = deriveEmail(data.Username || data.StudentID, data.Email);
+          const userCredential = await firebaseAuth.createUserWithEmailAndPassword(email, password);
+          const uid = userCredential.user.uid;
+          
+          const profile = {
+            UserID: uid,
+            Username: data.Username,
+            Email: email,
+            Role: data.Role,
+            FirstName: data.FirstName,
+            LastName: data.LastName,
+            DisplayName: user.DisplayName,
+            ClassName: data.ClassName,
+            StudentID: data.StudentID || '',
+            HouseholdStatus: data.HouseholdName || '',
+            ConsentStatus: data.Consent ? 'ยินยอม' : '',
+            CurrentLevel: 'Green Starter',
+            CurrentEXP: 0,
+            TotalScore: 0,
+            TotalStars: 0,
+            TotalBadges: 0,
+            TotalPosts: 0,
+            TotalComments: 0,
+            TotalSubmissions: 0,
+            TotalCO2e: 0,
+            LastActiveAt: nowStamp()
+          };
+          
+          const batch = firebaseFs.batch();
+          batch.set(firebaseFs.collection('userProfiles').doc(uid), profile);
+          batch.set(firebaseFs.collection('usernames').doc(usernameClean), { email: email, uid: uid });
+          if (data.StudentID) {
+            const studentClean = String(data.StudentID || '').trim().toLowerCase();
+            batch.set(firebaseFs.collection('studentIDs').doc(studentClean), { email: email, uid: uid });
+          }
+          await batch.commit();
+          
+          result = {
+            ok: true,
+            token: userCredential.user.refreshToken || uid,
+            user: {
+              UserID: uid,
+              Username: data.Username,
+              Email: email,
+              Role: data.Role,
+              FirstName: data.FirstName,
+              LastName: data.LastName,
+              DisplayName: user.DisplayName,
+              ClassName: data.ClassName,
+              StudentID: data.StudentID || '',
+              HouseholdName: data.HouseholdName || '',
+              ConsentStatus: data.Consent ? 'ยินยอม' : ''
+            }
+          };
+        } else {
+          result = sheetApiConfigured()
+            ? await sheetApi('signupUser', { user, password })
+            : await localSignupUser(user, password);
+        }
         await completeAuthSession(result, true);
       } catch (remoteError) {
         try {
           const localResult = await localSignupUser(user, password);
           await completeAuthSession(localResult, true);
-          alert('สมัครบัญชีในเครื่องสำเร็จ แต่ยังไม่ได้บันทึกไป Google Sheets: ' + (remoteError.message || remoteError));
+          alert('สมัครบัญชีในเครื่องสำเร็จ แต่ยังไม่ได้บันทึกไป Google Sheets/Firebase: ' + (remoteError.message || remoteError));
         } catch (localError) {
           state.authBusy = false;
           setAuthMessage(`${remoteError.message || remoteError} | Local: ${localError.message || localError}`, 'bad');
@@ -3299,8 +3409,15 @@
       const token = state.authToken;
       clearAuthSession();
       state.active = 'home';
+      if (firebaseAuth) {
+        try { await firebaseAuth.signOut(); } catch (e) {}
+      }
+      if (currentChatSubscription) {
+        currentChatSubscription.off();
+        currentChatSubscription = null;
+      }
       renderAuth();
-      if (sheetApiConfigured() && token) {
+      if (sheetApiConfigured() && token && !firebaseAuth) {
         try { await sheetApi('logoutUser', { token }); } catch (e) {}
       }
     }
@@ -4772,6 +4889,9 @@
     function setChatRoom(roomId) {
       state.chatRoom = roomId;
       state.replyToMessageID = '';
+      if (firebaseDb) {
+        subscribeToFirebaseChat(roomId);
+      }
       renderChat();
     }
 
@@ -4909,13 +5029,22 @@
         ReportStatus: '',
         ModerationStatus: 'ปกติ',
       };
-      try {
-        const result = await sheetApi('appendChatMessage', { message });
-        state.data.chatMessages.push(normalizeRow(result.message || message));
-      } catch (error) {
-        state.data.chatMessages.push(normalizeRow(message));
-        queuePendingWrite('appendChatMessage', { message });
-        alert('บันทึกข้อความไว้ในเครื่องแล้ว และจะส่งเข้า Google Sheets เมื่อเชื่อมต่อได้');
+      if (firebaseDb) {
+        try {
+          await firebaseDb.ref(`chatMessages/${state.chatRoom}/${message.MessageID}`).set(message);
+        } catch (error) {
+          console.error("Firebase send message error:", error);
+          alert("ส่งข้อความเข้า Firebase ไม่สำเร็จ: " + error.message);
+        }
+      } else {
+        try {
+          const result = await sheetApi('appendChatMessage', { message });
+          state.data.chatMessages.push(normalizeRow(result.message || message));
+        } catch (error) {
+          state.data.chatMessages.push(normalizeRow(message));
+          queuePendingWrite('appendChatMessage', { message });
+          alert('บันทึกข้อความไว้ในเครื่องแล้ว และจะส่งเข้า Google Sheets เมื่อเชื่อมต่อได้');
+        }
       }
       saveToLocalStorage();
       state.replyToMessageID = '';
@@ -4944,12 +5073,20 @@
         ReportStatus: '',
         ModerationStatus: 'ปกติ',
       };
-      try {
-        const result = await sheetApi('appendChatMessage', { message });
-        state.data.chatMessages.push(normalizeRow(result.message || message));
-      } catch (error) {
-        state.data.chatMessages.push(normalizeRow(message));
-        queuePendingWrite('appendChatMessage', { message });
+      if (firebaseDb) {
+        try {
+          await firebaseDb.ref(`chatMessages/${state.chatRoom}/${message.MessageID}`).set(message);
+        } catch (error) {
+          console.error("Firebase send sticker error:", error);
+        }
+      } else {
+        try {
+          const result = await sheetApi('appendChatMessage', { message });
+          state.data.chatMessages.push(normalizeRow(result.message || message));
+        } catch (error) {
+          state.data.chatMessages.push(normalizeRow(message));
+          queuePendingWrite('appendChatMessage', { message });
+        }
       }
       state.replyToMessageID = '';
       saveToLocalStorage();
@@ -4963,10 +5100,21 @@
         message.ReportStatus = 'ถูกรายงาน';
         message.ModerationStatus = 'รอครูตรวจสอบ';
       }
-      try {
-        await sheetApi('reportChatMessage', { messageId });
-      } catch (error) {
-        queuePendingWrite('reportChatMessage', { messageId });
+      if (firebaseDb) {
+        try {
+          await firebaseDb.ref(`chatMessages/${state.chatRoom}/${messageId}`).update({
+            ReportStatus: 'ถูกรายงาน',
+            ModerationStatus: 'รอครูตรวจสอบ'
+          });
+        } catch (error) {
+          console.error("Firebase report message error:", error);
+        }
+      } else {
+        try {
+          await sheetApi('reportChatMessage', { messageId });
+        } catch (error) {
+          queuePendingWrite('reportChatMessage', { messageId });
+        }
       }
       saveToLocalStorage();
       renderChat();
@@ -5587,16 +5735,28 @@
 
     function quickModerateMessage(messageId, moderationStatus, reportStatus, isPinned) {
       const updates = { ModerationStatus: moderationStatus, ReportStatus: reportStatus || '', IsPinned: !!isPinned };
-      sheetApi('updateChatMessageModeration', { pin: state.adminPIN, messageId, moderationStatus, reportStatus, isPinned: !!isPinned }).then(() => {
-        updateLocalById(state.data.chatMessages, 'MessageID', messageId, updates);
-        saveToLocalStorage();
-        renderAdmin();
-      }).catch((error) => {
-        updateLocalById(state.data.chatMessages, 'MessageID', messageId, updates);
-        saveToLocalStorage();
-        renderAdmin();
-        alert('อัปเดตในเครื่องแล้ว แต่ยังบันทึกลง Google Sheets ไม่สำเร็จ: ' + error.message);
-      });
+      const message = (state.data.chatMessages || []).find((m) => m.MessageID === messageId);
+      const roomId = message ? message.ChatRoomID : null;
+      if (firebaseDb && roomId) {
+        firebaseDb.ref(`chatMessages/${roomId}/${messageId}`).update(updates).then(() => {
+          updateLocalById(state.data.chatMessages, 'MessageID', messageId, updates);
+          saveToLocalStorage();
+          renderAdmin();
+        }).catch((error) => {
+          alert('อัปเดตใน Firebase ไม่สำเร็จ: ' + error.message);
+        });
+      } else {
+        sheetApi('updateChatMessageModeration', { pin: state.adminPIN, messageId, moderationStatus, reportStatus, isPinned: !!isPinned }).then(() => {
+          updateLocalById(state.data.chatMessages, 'MessageID', messageId, updates);
+          saveToLocalStorage();
+          renderAdmin();
+        }).catch((error) => {
+          updateLocalById(state.data.chatMessages, 'MessageID', messageId, updates);
+          saveToLocalStorage();
+          renderAdmin();
+          alert('อัปเดตในเครื่องแล้ว แต่ยังบันทึกลง Google Sheets ไม่สำเร็จ: ' + error.message);
+        });
+      }
     }
 
     function adminGameScoresHtml() {

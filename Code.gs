@@ -66,12 +66,10 @@ function setupGreenPassport() {
   if (starterKit.getLastRow() < 2) seedStarterKit_(starterKit);
   ensureSheet_('CommunityPosts', COMMUNITY_POST_HEADERS);
   ensureSheet_('PostComments', POST_COMMENT_HEADERS);
-  ensureSheet_('ChatMessages', CHAT_MESSAGE_HEADERS);
+  ensureSheet_('ChatArchive', ['MessageID','ChatRoomID','Timestamp','UserID','DisplayName','ClassName','MessageText','ImageLink','MessageType','ReplyToMessageID','IsPinned','ReportStatus','ModerationStatus','ArchivedAt']);
   const rooms = ensureSheet_('ChatRooms', CHAT_ROOM_HEADERS);
   if (rooms.getLastRow() < 2) seedChatRooms_(rooms);
   ensureSheet_('UserProfiles', USER_PROFILE_HEADERS);
-  ensureSheet_('AppUsers', APP_USER_HEADERS);
-  ensureSheet_('UserSessions', USER_SESSION_HEADERS);
   const levels = ensureSheet_('LevelRules', LEVEL_RULE_HEADERS);
   if (levels.getLastRow() < 2) seedLevelRules_(levels);
   ensureSheet_('EXPLogs', EXP_LOG_HEADERS);
@@ -109,99 +107,30 @@ function handleRequest_(req) {
   if (req.action === 'getBootstrapData') return { ok: true, data: getBootstrapData_() };
   if (req.action === 'appendWasteRecord') return appendWasteRecord_(req.record || {});
   if (req.action === 'appendGameScore') return appendGameScore_(req.score || {});
-  if (req.action === 'signupUser') return signupUser_(req);
-  if (req.action === 'loginUser') return loginUser_(req);
-  if (req.action === 'validateSession') return validateSession_(req);
-  if (req.action === 'logoutUser') return logoutUser_(req);
+  if (req.action === 'archiveChatMessages') return archiveChatMessages_(req.messages || []);
   if (req.action === 'adminLogin') return verifyPin_(req.pin) ? { ok: true } : { ok: false, message: 'Admin PIN ไม่ถูกต้อง' };
   if (req.action === 'updateReview') return updateReview_(req);
   if (req.action === 'logExportReport') return logExportReport_(req);
   if (req.action === 'appendCommunityPost') return appendCommunityPost_(req.post || {});
   if (req.action === 'appendPostComment') return appendPostComment_(req.comment || {});
-  if (req.action === 'appendChatMessage') return appendChatMessage_(req.message || {});
   if (req.action === 'updateCommunityPostReview') return updateCommunityPostReview_(req);
   if (req.action === 'updatePostCommentReview') return updatePostCommentReview_(req);
-  if (req.action === 'updateChatMessageModeration') return updateChatMessageModeration_(req);
-  if (req.action === 'reportChatMessage') return reportChatMessage_(req);
   if (req.action === 'sendCommunityLike') return sendCommunityLike_(req);
   return { ok: false, message: 'Unknown action' };
 }
 
-function signupUser_(req) {
-  const password = String(req.password || '');
-  if (password.length < 6) return { ok: false, message: 'Password ต้องมีอย่างน้อย 6 ตัวอักษร' };
-  const user = normalizeAppUser_(req.user || {});
-  if (!user.Username && !user.Email && !user.StudentID) return { ok: false, message: 'กรุณากรอก Username, Email หรือรหัสนักเรียน' };
-  if (findUserMatch_(user)) return { ok: false, message: 'บัญชีนี้มีอยู่แล้ว กรุณา Login หรือใช้ Username อื่น' };
+function archiveChatMessages_(messages) {
+  if (!messages || !messages.length) return { ok: true, count: 0 };
+  const headers = sheetHeadersByName_('ChatArchive') || ['MessageID','ChatRoomID','Timestamp','UserID','DisplayName','ClassName','MessageText','ImageLink','MessageType','ReplyToMessageID','IsPinned','ReportStatus','ModerationStatus','ArchivedAt'];
+  ensureSheet_('ChatArchive', headers);
   const now = new Date();
-  const salt = Utilities.getUuid();
-  user.UserID = user.UserID || user.StudentID || user.Username || user.Email || makeId_('USER');
-  user.StudentIDMasked = user.StudentIDMasked || maskStudentId_(user.StudentID || user.UserID);
-  user.Avatar = user.Avatar || avatarText_(user.DisplayName || user.Username || user.UserID);
-  user.PasswordSalt = salt;
-  user.PasswordHash = hashPassword_(password, salt);
-  user.ConsentStatus = user.ConsentStatus || 'ยินยอม';
-  user.Status = 'active';
-  user.CreatedAt = now;
-  user.LastLoginAt = now;
-  appendObject_('AppUsers', APP_USER_HEADERS, user);
-  upsertUserProfileFromAppUser_(user);
-  const token = createUserSession_(user.UserID);
-  return { ok: true, token, user: publicAppUser_(user) };
-}
-
-function loginUser_(req) {
-  const login = String(req.login || '').trim();
-  const password = String(req.password || '');
-  if (!login || !password) return { ok: false, message: 'กรุณากรอก Username และ Password' };
-  const match = findUserByLogin_(login);
-  if (!match) return { ok: false, message: 'ไม่พบบัญชีผู้ใช้' };
-  const user = match.user;
-  if (String(user.Status || 'active') !== 'active') return { ok: false, message: 'บัญชีนี้ถูกปิดใช้งาน กรุณาติดต่อผู้ดูแลระบบ' };
-  if (hashPassword_(password, user.PasswordSalt) !== user.PasswordHash) return { ok: false, message: 'รหัสผ่านไม่ถูกต้อง' };
-  const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName('AppUsers');
-  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-  const now = new Date();
-  setCellByHeader_(sheet, headers, match.rowNumber, 'LastLoginAt', now);
-  user.LastLoginAt = now;
-  upsertUserProfileFromAppUser_(user);
-  const token = createUserSession_(user.UserID);
-  return { ok: true, token, user: publicAppUser_(user) };
-}
-
-function validateSession_(req) {
-  const token = String(req.token || '').trim();
-  if (!token) return { ok: false, message: 'Session ไม่ถูกต้อง' };
-  const sheet = ensureSheet_('UserSessions', USER_SESSION_HEADERS);
-  const values = sheet.getDataRange().getValues();
-  const headers = values.shift();
-  const tokenIndex = headers.indexOf('Token');
-  const rowIndex = values.findIndex((row) => String(row[tokenIndex]) === token);
-  if (rowIndex < 0) return { ok: false, message: 'Session หมดอายุหรือไม่ถูกต้อง' };
-  const rowNumber = rowIndex + 2;
-  const session = {};
-  headers.forEach((header, index) => session[header] = values[rowIndex][index]);
-  if (String(session.Status || '') !== 'active') return { ok: false, message: 'Session ถูกปิดใช้งานแล้ว' };
-  if (session.ExpiresAt && new Date(session.ExpiresAt).getTime() < Date.now()) {
-    setCellByHeader_(sheet, headers, rowNumber, 'Status', 'expired');
-    return { ok: false, message: 'Session หมดอายุ กรุณา Login ใหม่' };
-  }
-  setCellByHeader_(sheet, headers, rowNumber, 'LastSeenAt', new Date());
-  const match = findUserById_(session.UserID);
-  if (!match) return { ok: false, message: 'ไม่พบข้อมูลผู้ใช้ของ Session นี้' };
-  return { ok: true, token, user: publicAppUser_(match.user) };
-}
-
-function logoutUser_(req) {
-  const token = String(req.token || '').trim();
-  if (!token) return { ok: true };
-  const sheet = ensureSheet_('UserSessions', USER_SESSION_HEADERS);
-  const values = sheet.getDataRange().getValues();
-  const headers = values.shift();
-  const tokenIndex = headers.indexOf('Token');
-  const rowIndex = values.findIndex((row) => String(row[tokenIndex]) === token);
-  if (rowIndex >= 0) setCellByHeader_(sheet, headers, rowIndex + 2, 'Status', 'revoked');
-  return { ok: true };
+  let count = 0;
+  messages.forEach((msg) => {
+    const row = Object.assign({}, msg, { ArchivedAt: now });
+    appendObject_('ChatArchive', headers, row);
+    count++;
+  });
+  return { ok: true, count };
 }
 
 function normalizeAppUser_(input) {
@@ -261,29 +190,7 @@ function authKey_(value) {
   return String(value || '').trim().toLowerCase();
 }
 
-function hashPassword_(password, salt) {
-  const raw = `${salt}:${password}:green-passport`;
-  const bytes = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, raw, Utilities.Charset.UTF_8);
-  return bytes.map((byte) => {
-    const value = byte < 0 ? byte + 256 : byte;
-    return value.toString(16).padStart(2, '0');
-  }).join('');
-}
 
-function createUserSession_(userId) {
-  const now = new Date();
-  const expires = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
-  const token = `${Utilities.getUuid()}-${Utilities.getUuid()}`;
-  appendObject_('UserSessions', USER_SESSION_HEADERS, {
-    Token: token,
-    UserID: userId,
-    CreatedAt: now,
-    LastSeenAt: now,
-    ExpiresAt: expires,
-    Status: 'active',
-  });
-  return token;
-}
 
 function upsertUserProfileFromAppUser_(user) {
   const now = new Date();
@@ -701,20 +608,7 @@ function appendPostComment_(input) {
   return { ok: true, comment, message: 'ส่งความคิดเห็นแล้ว รอครูตรวจสอบ' };
 }
 
-function appendChatMessage_(input) {
-  const message = Object.assign({}, input);
-  message.MessageID = makeId_('MSG');
-  message.Timestamp = new Date();
-  message.UserID = message.UserID || message.DisplayName || 'guest';
-  message.MessageType = message.MessageType || 'text';
-  message.IsPinned = message.IsPinned || false;
-  message.ReportStatus = message.ReportStatus || '';
-  message.ModerationStatus = message.ModerationStatus || 'ปกติ';
-  const rowNumber = appendObject_('ChatMessages', CHAT_MESSAGE_HEADERS, message);
-  message._rowNumber = rowNumber;
-  appendEXPLog_(message.UserID, 'ส่งข้อความสร้างสรรค์', 'ส่งข้อความใน Green Chat', 5, message.MessageID, 'รอครูตรวจสอบตามนโยบายโรงเรียน');
-  return { ok: true, message };
-}
+
 
 function updateCommunityPostReview_(req) {
   if (!verifyPin_(req.pin)) return { ok: false, message: 'Admin PIN ไม่ถูกต้อง' };
@@ -740,23 +634,7 @@ function updatePostCommentReview_(req) {
   return { ok: true, message: 'บันทึกผลตรวจความคิดเห็นแล้ว' };
 }
 
-function updateChatMessageModeration_(req) {
-  if (!verifyPin_(req.pin)) return { ok: false, message: 'Admin PIN ไม่ถูกต้อง' };
-  setObjectFieldsById_('ChatMessages', 'MessageID', req.messageId, {
-    ModerationStatus: req.moderationStatus || 'ปกติ',
-    ReportStatus: req.reportStatus || '',
-    IsPinned: req.isPinned || false,
-  });
-  return { ok: true, message: 'บันทึกการดูแลข้อความแล้ว' };
-}
 
-function reportChatMessage_(req) {
-  const message = setObjectFieldsById_('ChatMessages', 'MessageID', req.messageId, {
-    ModerationStatus: 'รอครูตรวจสอบ',
-    ReportStatus: 'ถูกรายงาน',
-  });
-  return { ok: true, message, notice: 'ส่งรายงานข้อความให้ครูตรวจสอบแล้ว' };
-}
 
 function sendCommunityLike_(req) {
   const post = incrementNumberById_('CommunityPosts', 'PostID', req.postId, 'Likes', 1);
