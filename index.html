@@ -2904,7 +2904,10 @@
     }
 
     async function fetchUserProfilesFromFirestore() {
-      if (!firebaseFs) return;
+      if (!firebaseFs || !firebaseAuth || !firebaseAuth.currentUser) {
+        console.log("Postponing Firestore profiles fetch: Firebase Auth not ready");
+        return;
+      }
       try {
         const snapshot = await firebaseFs.collection('userProfiles').get();
         const profiles = [];
@@ -2924,7 +2927,10 @@
       if (currentChatSubscription) {
         currentChatSubscription.off();
       }
-      if (!firebaseDb) return;
+      if (!firebaseDb || !firebaseAuth || !firebaseAuth.currentUser) {
+        console.log("Postponing Realtime DB chat subscribe: Firebase Auth not ready");
+        return;
+      }
       currentChatSubscription = firebaseDb.ref(`chatMessages/${roomId}`).orderByChild('Timestamp');
       currentChatSubscription.on('value', (snapshot) => {
         const val = snapshot.val();
@@ -2948,6 +2954,21 @@
       });
     }
 
+    // Sync Firebase Auth state with Firestore/Realtime DB
+    if (firebaseAuth) {
+      firebaseAuth.onAuthStateChanged(async (user) => {
+        if (user) {
+          console.log("Firebase Auth synced: User authenticated");
+          await fetchUserProfilesFromFirestore();
+          if (state.active === 'chat' && firebaseDb) {
+            subscribeToFirebaseChat(state.chatRoom || 'CR-MISSION-01');
+          }
+        } else {
+          console.log("Firebase Auth synced: No active session");
+        }
+      });
+    }
+
     async function completeAuthSession(result, remember = true) {
       const session = {
         token: result.token || randomToken('session'),
@@ -2966,10 +2987,10 @@
       try {
         await reloadData(true);
         applyCurrentUserToState();
-        if (firebaseFs) {
+        if (firebaseFs && firebaseAuth && firebaseAuth.currentUser) {
           await fetchUserProfilesFromFirestore();
         }
-        if (state.active === 'chat' && firebaseDb) {
+        if (state.active === 'chat' && firebaseDb && firebaseAuth && firebaseAuth.currentUser) {
           subscribeToFirebaseChat(state.chatRoom || 'CR-MISSION-01');
         }
         saveToLocalStorage();
