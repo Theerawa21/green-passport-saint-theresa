@@ -95,8 +95,14 @@
         form.reset();
         renderAll();
       } catch (error) {
+        state.data.wasteRecords.push(normalizeRow(data));
+        refreshLocalDashboard();
+        applyCurrentUserToState();
+        saveToLocalStorage();
         queuePendingWrite('appendWasteRecord', { record: data });
         alert('ยังบันทึกลง Google Sheets ไม่สำเร็จ ระบบเก็บคำขอนี้ไว้เพื่อส่งซ้ำเมื่อ endpoint พร้อม: ' + error.message);
+        form.reset();
+        renderAll();
       }
     }
 

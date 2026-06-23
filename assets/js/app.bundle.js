@@ -2221,7 +2221,7 @@
         record: 'กรอกขยะ หลักฐาน และคำนวณ kgCO₂e',
         guide: 'อ่านวิธีแยกขยะ 3Rs และขยะอันตราย',
         game: 'เล่นด่านความรู้ สะสมดาวและ Badge',
-        leaderboard: 'ดูอันดับครัวเรือนและคะแนนเกม',
+        leaderboard: 'ดูอันดับครัวเรือนลดคาร์บอนสะสม',
         community: 'แชร์ประสบการณ์ลดขยะและให้กำลังใจเพื่อน',
         friends: 'เห็นเพื่อนในระบบแบบปลอดภัย',
         chat: 'พูดคุยเรื่อง Zero Waste ภายใต้กติกาโรงเรียน',
@@ -2346,8 +2346,14 @@
         form.reset();
         renderAll();
       } catch (error) {
+        state.data.wasteRecords.push(normalizeRow(data));
+        refreshLocalDashboard();
+        applyCurrentUserToState();
+        saveToLocalStorage();
         queuePendingWrite('appendWasteRecord', { record: data });
         alert('ยังบันทึกลง Google Sheets ไม่สำเร็จ ระบบเก็บคำขอนี้ไว้เพื่อส่งซ้ำเมื่อ endpoint พร้อม: ' + error.message);
+        form.reset();
+        renderAll();
       }
     }
 
@@ -2639,6 +2645,7 @@ function createInitialGameState() {
         play: renderStagePlay,
         summary: renderStageSummary,
         certificate: renderGameCertificate,
+        leaderboard: renderGameLeaderboard,
       }[state.game.screen] || renderGameStart;
       document.getElementById('game').innerHTML = view();
     }
@@ -2727,7 +2734,7 @@ function createInitialGameState() {
         </div>
         <div class="btn-row" style="margin-top:16px">
           <button class="btn ghost" onclick="goGameScreen('profile')">แก้ไขโปรไฟล์</button>
-          <button class="btn secondary" onclick="showPage('leaderboard')">ดู Leaderboard</button>
+          <button class="btn secondary" onclick="goGameScreen('leaderboard'); playGameSound('button')">ดู Leaderboard</button>
           ${allStagesComplete() ? `<button class="btn yellow" onclick="goGameScreen('certificate')">ออกเกียรติบัตร</button>` : ''}
         </div>`;
     }
@@ -2847,6 +2854,40 @@ function createInitialGameState() {
             <p>ผ่านภารกิจฮีโร่พิทักษ์โลก และมีความรู้ด้านการแยกขยะ การลดขยะ และการลดคาร์บอน</p>
             <div>${greenBuddy('ครัวเรือนของคุณคือพลังสีเขียวของโลก 💚', true)}</div>
             <p>วันที่ออกเกียรติบัตร ${new Date().toLocaleDateString('th-TH')}</p>
+          </div>
+        </div>`;
+    }
+
+    function renderGameLeaderboard() {
+      const uniqueGameScores = {};
+      (state.data.gameScores || []).forEach((row) => {
+        const key = String(row.StudentID || '').trim() || String(row.FullName || '').trim() || 'unknown';
+        if (key === 'unknown') return;
+        if (!uniqueGameScores[key] || Number(row.TotalScore || 0) > Number(uniqueGameScores[key].TotalScore || 0)) {
+          uniqueGameScores[key] = row;
+        }
+      });
+      const topGame = Object.values(uniqueGameScores).sort((a, b) => b.TotalScore - a.TotalScore);
+
+      const medal = ['🏆', '🥈', '🥉'];
+      const listHtml = topGame.map((r, i) => `
+        <div class="card" style="margin-bottom: 10px;">
+          <div class="btn-row" style="justify-content: space-between; align-items: center;">
+            <strong>${medal[i] || '⭐'} อันดับ ${i + 1}: ${r.FullName}</strong>
+            <span class="badge earned">${r.TotalScore} คะแนน</span>
+          </div>
+          <p style="margin-top: 4px; font-size: 14px; color: var(--text-muted);">${r.ClassName || ''} | ดาวรวม: ${starText(r.TotalStars)} | ระดับ: ${r.PlayerLevel || 'นักแยกขยะ'}</p>
+        </div>`).join('');
+
+      return `
+        <div class="panel" style="max-width: 800px; margin: 0 auto;">
+          <h3 style="margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">🎮 Leaderboard คะแนนเกม Trash Hero Academy</h3>
+          <p style="color: var(--text-muted); margin-bottom: 16px;">อันดับผู้เล่นที่สะสมคะแนนได้สูงสุดจากการทำภารกิจแยกขยะ 9 ด่าน</p>
+          <div style="margin-top: 16px; margin-bottom: 20px;">
+            ${listHtml || '<p style="text-align: center; color: var(--text-muted); padding: 20px 0;">ยังไม่มีข้อมูลคะแนนเกม</p>'}
+          </div>
+          <div class="btn-row" style="margin-top: 20px;">
+            <button class="btn" onclick="goGameScreen('map'); playGameSound('button')">🗺️ กลับแผนที่ภารกิจ</button>
           </div>
         </div>`;
     }
@@ -3010,6 +3051,7 @@ function createInitialGameState() {
         }
         queuePendingWrite('appendGameScore', { score });
         state.game.saved = true;
+        saveToLocalStorage();
         playGameSound('finish');
         alert('ยังบันทึกคะแนนลง Google Sheets ไม่สำเร็จ ระบบเก็บคำขอไว้เพื่อส่งซ้ำเมื่อ endpoint พร้อม: ' + error.message);
         goGameScreen(allStagesComplete() ? 'certificate' : 'map');
@@ -3021,33 +3063,26 @@ function createInitialGameState() {
     function renderLeaderboard() {
       const topCarbon = [...state.data.householdSummary].sort((a, b) => b.TotalCO2e - a.TotalCO2e);
       
-      // Deduplicate gameScores by player identity (StudentID or FullName) to keep only their highest score
-      const uniqueGameScores = {};
-      (state.data.gameScores || []).forEach((row) => {
-        const key = String(row.StudentID || '').trim() || String(row.FullName || '').trim() || 'unknown';
-        if (key === 'unknown') return;
-        if (!uniqueGameScores[key] || Number(row.TotalScore || 0) > Number(uniqueGameScores[key].TotalScore || 0)) {
-          uniqueGameScores[key] = row;
-        }
-      });
-      const topGame = Object.values(uniqueGameScores).sort((a, b) => b.TotalScore - a.TotalScore);
-
       document.getElementById('leaderboard').innerHTML = `
-        <div class="grid two">
-          <div class="panel"><h3>Leaderboard คาร์บอน</h3>${rankCards(topCarbon, 'carbon')}</div>
-          <div class="panel"><h3>Leaderboard เกม</h3>${rankCards(topGame, 'game')}</div>
+        <div class="panel" style="max-width: 800px; margin: 0 auto;">
+          <h3 style="margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">🌍 Leaderboard คาร์บอนสะสม</h3>
+          <p style="color: var(--text-muted); margin-bottom: 16px;">อันดับการลดการปล่อยก๊าซเรือนกระจก (คาร์บอนไดออกไซด์เทียบเท่า) สะสมของแต่ละครัวเรือน</p>
+          <div style="margin-top: 16px;">
+            ${topCarbon.length ? rankCards(topCarbon, 'carbon') : '<p style="text-align: center; color: var(--text-muted); padding: 20px 0;">ยังไม่มีข้อมูลคาร์บอนสะสม</p>'}
+          </div>
         </div>`;
     }
 
     function rankCards(rows, type) {
       const medal = ['🏆', '🥈', '🥉'];
-      return rows.map((r, i) => `<div class="card" style="margin-bottom:10px">
-        <div class="btn-row" style="justify-content:space-between">
-          <strong>${medal[i] || '⭐'} อันดับ ${i + 1}: ${type === 'carbon' ? r.HouseholdName : r.FullName}</strong>
-          <span class="badge earned">${type === 'carbon' ? format(r.TotalCO2e) + ' kgCO₂e 🌍' : r.TotalScore + ' คะแนน'}</span>
-        </div>
-        <p>${r.ClassName || ''} ${type === 'carbon' ? `ส่ง ${r.TotalSubmissions} ครั้ง 🍃` : `${starText(r.TotalStars)} | ${r.PlayerLevel}`}</p>
-      </div>`).join('');
+      return rows.map((r, i) => `
+        <div class="card" style="margin-bottom: 10px;">
+          <div class="btn-row" style="justify-content: space-between; align-items: center;">
+            <strong>${medal[i] || '⭐'} อันดับ ${i + 1}: ${r.HouseholdName}</strong>
+            <span class="badge earned">${format(r.TotalCO2e)} kgCO₂e 🌍</span>
+          </div>
+          <p style="margin-top: 4px; font-size: 14px; color: var(--text-muted);">${r.ClassName || ''} ส่งข้อมูล ${r.TotalSubmissions} ครั้ง 🍃</p>
+        </div>`).join('');
     }
 
 
