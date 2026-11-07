@@ -19,6 +19,7 @@ const jsFiles = [
   'pages/chat.js',
   'pages/profile.js',
   'pages/impact-dashboard.js',
+  'pages/resource-use.js',
   'pages/admin.js',
   '99-runtime.js',
 ];
