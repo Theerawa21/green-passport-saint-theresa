@@ -84,6 +84,8 @@
       const renderers = {
         home: renderHome,
         record: renderRecord,
+        electricity: () => renderResource('electricity'),
+        water: () => renderResource('water'),
         guide: renderGuide,
         game: renderGame,
         leaderboard: renderLeaderboard,
