@@ -31,8 +31,8 @@
     }
 
     function resourceComparison(items, unit) {
-      const sorted = [...items].sort((a, b) => a.ReportMonth.localeCompare(b.ReportMonth));
-      if (sorted.length < 2) return '<p class="notice">บันทึกอย่างน้อย 2 เดือนจึงจะเปรียบเทียบก่อน–หลังได้</p>';
+      const sorted = [...items].filter((r) => r.Source !== 'estimate').sort((a, b) => a.ReportMonth.localeCompare(b.ReportMonth));
+      if (sorted.length < 2) return '<p class="notice">บันทึกข้อมูลจริงจากบิลหรือมิเตอร์อย่างน้อย 2 เดือนจึงจะเปรียบเทียบก่อน–หลังได้ (ไม่นำค่าประมาณมาคำนวณ)</p>';
       const first = sorted[0], last = sorted[sorted.length - 1];
       const difference = Number(first.Usage) - Number(last.Usage);
       const percent = Number(first.Usage) > 0 ? difference / Number(first.Usage) * 100 : null;
